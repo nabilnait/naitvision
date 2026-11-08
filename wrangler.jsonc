@@ -15,8 +15,9 @@
   // Public, non-secret settings. Secrets (RESEND_API_KEY, TURNSTILE_SECRET_KEY) are set with `wrangler secret put`.
   "vars": {
     "CONTACT_TO": "info@naitvision.be",
-    "CONTACT_FROM": "Naitvision website <website@naitvision.be>"
-    // "TURNSTILE_SITE_KEY": "0x4AAAA..."  optional: the public site key, if you prefer it here over a build variable
+    "CONTACT_FROM": "Naitvision website <website@naitvision.be>",
+    // public Turnstile site key; the Worker fills it into /contact (the secret key is a wrangler secret)
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAF5NPZMXgzf3jK31"
   },
   // keep variables set in the dashboard when deploying
   "keep_vars": true,
