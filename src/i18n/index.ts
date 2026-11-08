@@ -35,6 +35,10 @@ export function clean(s: string | undefined | null): string {
 /** True when there is something to render for this text. */
 export const present = (s: string | undefined | null) => clean(s) !== '';
 
+/** wa.me link for a number in international format (digits only), with an optional pre-filled message. */
+export const whatsappHref = (number: string, message = '') =>
+  `https://wa.me/${number.replace(/\D/g, '')}${message ? `?text=${encodeURIComponent(message)}` : ''}`;
+
 /** True when a link points somewhere real. */
 export const isRealHref = (s: string | undefined | null) => !!s && !isTodo(s);
 

@@ -1,0 +1,45 @@
+---
+/** Floating WhatsApp button, bottom right on every page. Hidden while the number is empty. */
+import Icon from './Icon.astro';
+import { t, isRealHref, whatsappHref, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const c = t(Astro.props.lang);
+const b = c.business;
+const show = isRealHref(b.whatsapp);
+---
+{show && (
+  <a class="wa" href={whatsappHref(b.whatsapp, b.whatsappMessage)} target="_blank" rel="noopener" aria-label={c.ui.whatsappAria} data-wa>
+    <Icon name="whatsapp" size={22} />
+    <span class="wa__label" aria-hidden="true">{c.ui.whatsappButton}</span>
+  </a>
+)}
+<style>
+  .wa {
+    position: fixed; z-index: 45;
+    right: calc(var(--space-5) + env(safe-area-inset-right, 0px));
+    bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    height: 52px; padding: 0 var(--space-5) 0 var(--space-4);
+    border: 1px solid var(--text); border-radius: var(--radius-pill);
+    background: var(--text); color: var(--bg); text-decoration: none;
+    font-family: var(--font-condensed); font-weight: 600; font-size: var(--fs-label); letter-spacing: .14em; text-transform: uppercase;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
+    transition: background-color .4s var(--ease), color .4s var(--ease), transform .5s var(--ease), opacity .4s var(--ease);
+  }
+  .wa:hover { background: var(--bg); color: var(--text); }
+  .wa:focus-visible { outline-offset: 4px; }
+  :global(html.menu-open) .wa { opacity: 0; pointer-events: none; }
+  .wa.is-tucked { transform: translateY(calc(100% + var(--space-6))); }
+  @media (max-width: 640px) {
+    .wa { width: 52px; padding: 0; justify-content: center; right: calc(var(--space-4) + env(safe-area-inset-right, 0px)); bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px)); }
+    .wa__label { display: none; }
+  }
+</style>
+<script>
+  // Tuck the button away at the very bottom of the page, so it never covers the footer's legal line.
+  const wa = document.querySelector<HTMLElement>('[data-wa]');
+  const footer = document.querySelector('.footer__legal');
+  if (wa && footer) {
+    new IntersectionObserver(([e]) => wa.classList.toggle('is-tucked', e.isIntersecting)).observe(footer);
+  }
+</script>

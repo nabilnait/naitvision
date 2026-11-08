@@ -10,7 +10,7 @@ Placeholders are visible in `npm run dev` (dashed outline). **Production builds 
 | --- | --- |
 | Domain (also set `SITE_URL` in Cloudflare) | `meta.domain` |
 | Address (legally required; shown in the footer and on /privacy once filled in) | `business.address` |
-| Phone, WhatsApp: optional, hidden while empty | `business.phone`, `business.whatsapp` |
+| Phone: optional, hidden while empty (WhatsApp is set: +32 485 10 39 30) | `business.phone` |
 | Instagram, TikTok, LinkedIn links (remove channels you don't use) | `socials` |
 
 ## Home

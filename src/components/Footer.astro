@@ -2,7 +2,7 @@
 import Mark from './Mark.astro';
 import Fill from './Fill.astro';
 import Icon from './Icon.astro';
-import { t, isTodo, isRealHref, showDetail, present, type Lang } from '../i18n';
+import { t, isTodo, isRealHref, showDetail, present, whatsappHref, type Lang } from '../i18n';
 interface Props { lang?: Lang }
 const c = t(Astro.props.lang);
 const b = c.business;
@@ -29,7 +29,7 @@ const hasContact = [b.email, b.phone, b.whatsapp].some(showDetail);
           <ul role="list" class="footer__list">
             {showDetail(b.email) && <li>{isTodo(b.email) ? <Fill text={b.email} /> : <a href={`mailto:${b.email}`}>{b.email}</a>}</li>}
             {showDetail(b.phone) && <li>{isTodo(b.phone) ? <Fill text={b.phone} /> : <a href={`tel:${b.phone.replace(/\s/g, '')}`}>{b.phone}</a>}</li>}
-            {showDetail(b.whatsapp) && <li>{isTodo(b.whatsapp) ? <Fill text={b.whatsapp} /> : <a href={`https://wa.me/${b.whatsapp}`} target="_blank" rel="noopener">{f.whatsappLabel}</a>}</li>}
+            {showDetail(b.whatsapp) && <li>{isTodo(b.whatsapp) ? <Fill text={b.whatsapp} /> : <a href={whatsappHref(b.whatsapp, b.whatsappMessage)} target="_blank" rel="noopener">{f.whatsappLabel} {b.whatsappDisplay}</a>}</li>}
           </ul>
         </div>
       )}

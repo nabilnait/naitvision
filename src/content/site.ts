@@ -43,7 +43,11 @@ const nl = {
     /** Leave empty to hide. Format as you want it shown, e.g. '+32 470 12 34 56'. */
     phone: '',
     /** Leave empty to hide. International format without + or spaces, e.g. 32470123456. */
-    whatsapp: '',
+    whatsapp: '32485103930',
+    /** How the WhatsApp number is shown on the page. */
+    whatsappDisplay: '+32 485 10 39 30',
+    /** Text that is already filled in when someone opens WhatsApp from the site. */
+    whatsappMessage: 'Hallo Naitvision, ik heb een vraag over ',
     /** Legally required. Shown in the footer and on /privacy as soon as it is filled in. */
     address: '[INVULLEN: adres]',
     /** As shown on the site; the structured data uses it without spaces and dots. */
@@ -59,6 +63,8 @@ const nl = {
     next: 'Volgende',
     close: 'Sluiten',
     play: 'Video afspelen',
+    whatsappButton: 'WhatsApp',
+    whatsappAria: 'Stuur ons een bericht via WhatsApp (opent WhatsApp)',
     socialsLabel: 'Volg ons',
   },
 

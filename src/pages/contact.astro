@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Fill from '../components/Fill.astro';
 import Icon from '../components/Icon.astro';
-import { t, isTodo, showDetail } from '../i18n';
+import { t, isTodo, showDetail, whatsappHref } from '../i18n';
 const c = t('nl');
 const p = c.pages.contact;
 const b = c.business;
@@ -60,7 +60,7 @@ const hasDirect = [b.whatsapp, b.email, b.phone].some(showDetail);
         {hasDirect && <ul role="list" class="direct__list">
           {showDetail(b.whatsapp) && <li>{isTodo(b.whatsapp)
             ? <span class="direct__item"><Icon name="message" size={20} /><span><span class="direct__k">{p.directWhatsapp}</span><Fill text={b.whatsapp} /></span></span>
-            : <a class="direct__item" href={`https://wa.me/${b.whatsapp}`} target="_blank" rel="noopener"><Icon name="message" size={20} /><span><span class="direct__k">{p.directWhatsapp}</span>+{b.whatsapp}</span></a>}</li>}
+            : <a class="direct__item" href={whatsappHref(b.whatsapp, b.whatsappMessage)} target="_blank" rel="noopener"><Icon name="whatsapp" size={20} /><span><span class="direct__k">{p.directWhatsapp}</span>{b.whatsappDisplay || `+${b.whatsapp}`}</span></a>}</li>}
           {showDetail(b.email) && <li>{isTodo(b.email)
             ? <span class="direct__item"><Icon name="mail" size={20} /><span><span class="direct__k">{p.directEmail}</span><Fill text={b.email} /></span></span>
             : <a class="direct__item" href={`mailto:${b.email}`}><Icon name="mail" size={20} /><span><span class="direct__k">{p.directEmail}</span>{b.email}</span></a>}</li>}
