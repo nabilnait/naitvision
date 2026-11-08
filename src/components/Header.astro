@@ -69,8 +69,8 @@ const socials = c.socials.filter((s) => isRealHref(s.href));
 
   .nav { display: flex; align-items: center; gap: var(--space-6); }
   .nav__list { display: grid; gap: 0; margin: 0; padding: 0; justify-items: end; line-height: 1.15; }
-  .nav__link { color: var(--text); text-decoration: none; display: inline-block; padding-block: 1px; position: relative; }
-  .nav__link::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .5s var(--ease); }
+  .nav__link { color: var(--text); text-decoration: none; display: inline-block; padding-block: 5px; position: relative; }
+  .nav__link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 3px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .5s var(--ease); }
   .nav__link:hover::after { transform: scaleX(1); transform-origin: left; }
 
   .menu-btn { display: none; width: 44px; height: 44px; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: transparent; cursor: pointer; place-items: center; }

@@ -1,0 +1,181 @@
+---
+import Base from '../layouts/Base.astro';
+import Fill from '../components/Fill.astro';
+import Icon from '../components/Icon.astro';
+import { t, isTodo } from '../i18n';
+const c = t('nl');
+const p = c.pages.contact;
+const b = c.business;
+const F = p.fields;
+// Cloudflare's always-passes test key is used until PUBLIC_TURNSTILE_SITE_KEY is set.
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
+const msgs = JSON.stringify(p.errors);
+---
+<Base title={p.metaTitle} description={p.metaDescription}>
+  <section class="contact container">
+    <h1 class="contact__title t-display" data-reveal="lines">
+      {p.title.split(' ').reduce<string[][]>((acc, w, i, all) => { const per = Math.ceil(all.length / 2); (acc[Math.floor(i / per)] ??= []).push(w); return acc; }, []).map((l) => <span class="line"><span>{l.join(' ')} </span></span>)}
+    </h1>
+    <p class="t-lead contact__intro" data-reveal>{p.intro}</p>
+
+    <div class="contact__grid">
+      <form class="form" novalidate data-form data-msgs={msgs}>
+        <div class="form__row">
+          <div class="field"><label for="f-name">{F.name}</label><input id="f-name" name="name" autocomplete="name" required /><p class="field__err" id="f-name-err" hidden></p></div>
+          <div class="field"><label for="f-company">{F.company}</label><input id="f-company" name="company" autocomplete="organization" required /><p class="field__err" id="f-company-err" hidden></p></div>
+        </div>
+        <div class="form__row">
+          <div class="field"><label for="f-email">{F.email}</label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required /><p class="field__err" id="f-email-err" hidden></p></div>
+          <div class="field"><label for="f-phone">{F.phone}</label><input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" /></div>
+        </div>
+        <fieldset class="needs">
+          <legend class="needs__legend">{F.needs}</legend>
+          <div class="needs__chips">
+            {p.needs.map((n, i) => (
+              <label class="chip-check"><input type="checkbox" name="needs" value={n} id={`f-need-${i}`} /><span>{n}</span></label>
+            ))}
+          </div>
+        </fieldset>
+        <div class="field"><label for="f-message">{F.message}</label><textarea id="f-message" name="message" rows="6" placeholder={F.messagePlaceholder} required></textarea><p class="field__err" id="f-message-err" hidden></p></div>
+        <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <div class="cf-turnstile" data-sitekey={siteKey} data-theme="dark" data-language="nl"></div>
+        <div class="form__foot">
+          <button class="btn btn--solid form__submit" type="submit" data-submit data-label={p.submit} data-sending={p.sending}>{p.submit}</button>
+          <p class="form__status" role="status" aria-live="polite" data-status hidden></p>
+        </div>
+        <div class="form__success" hidden data-success tabindex="-1">
+          <Icon name="check" size={22} />
+          <p>{p.success}</p>
+        </div>
+      </form>
+
+      <aside class="direct" aria-labelledby="direct-title">
+        <h2 id="direct-title" class="t-label muted">{p.directTitle}</h2>
+        <ul role="list" class="direct__list">
+          <li>{isTodo(b.whatsapp)
+            ? <span class="direct__item"><Icon name="message" size={20} /><span><span class="direct__k">{p.directWhatsapp}</span><Fill text={b.whatsapp} /></span></span>
+            : <a class="direct__item" href={`https://wa.me/${b.whatsapp}`} target="_blank" rel="noopener"><Icon name="message" size={20} /><span><span class="direct__k">{p.directWhatsapp}</span>+{b.whatsapp}</span></a>}</li>
+          <li>{isTodo(b.email)
+            ? <span class="direct__item"><Icon name="mail" size={20} /><span><span class="direct__k">{p.directEmail}</span><Fill text={b.email} /></span></span>
+            : <a class="direct__item" href={`mailto:${b.email}`}><Icon name="mail" size={20} /><span><span class="direct__k">{p.directEmail}</span>{b.email}</span></a>}</li>
+          <li>{isTodo(b.phone)
+            ? <span class="direct__item"><Icon name="phone" size={20} /><span><span class="direct__k">{p.directPhone}</span><Fill text={b.phone} /></span></span>
+            : <a class="direct__item" href={`tel:${b.phone.replace(/\s/g, '')}`}><Icon name="phone" size={20} /><span><span class="direct__k">{p.directPhone}</span>{b.phone}</span></a>}</li>
+        </ul>
+        <p class="muted direct__region">{b.region}</p>
+      </aside>
+    </div>
+  </section>
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</Base>
+
+<style>
+  .contact { padding-top: calc(160px + env(safe-area-inset-top, 0px)); padding-bottom: var(--section-pad); }
+  .contact__title { font-size: clamp(2.5rem, 6.4vw, 6rem); line-height: .92; letter-spacing: -0.03em; max-width: 16ch; }
+  .contact__intro { margin-top: var(--space-6); }
+  .contact__grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--space-9); margin-top: var(--space-8); padding-top: var(--space-7); border-top: 1px solid var(--line); }
+
+  .form { display: grid; gap: var(--space-5); align-content: start; }
+  .form__row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
+  .field { display: grid; gap: var(--space-2); }
+  .field label, .needs__legend { font-family: var(--font-condensed); font-weight: 600; font-size: var(--fs-label); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .field input, .field textarea {
+    width: 100%; padding: var(--space-3) var(--space-4); background: var(--surface); color: var(--text);
+    border: 1px solid var(--line-strong); border-radius: var(--radius-sm); font: 500 1rem/1.5 var(--font-body);
+    transition: border-color .3s var(--ease);
+  }
+  .field textarea { resize: vertical; min-height: 160px; }
+  .field input::placeholder, .field textarea::placeholder { color: var(--muted); }
+  .field input:focus, .field textarea:focus { outline: 2px solid var(--text); outline-offset: 2px; border-color: var(--text); }
+  .field input[aria-invalid='true'], .field textarea[aria-invalid='true'] { border-color: var(--danger); }
+  .field__err { color: var(--danger); font-size: var(--fs-small); }
+  .needs { border: 0; padding: 0; margin: 0; display: grid; gap: var(--space-3); }
+  .needs__chips { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .chip-check { position: relative; cursor: pointer; }
+  .chip-check input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chip-check span { display: inline-flex; align-items: center; min-height: 44px; padding: var(--space-2) var(--space-5); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); font: 500 var(--fs-small)/1.4 var(--font-body); transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease); }
+  .chip-check:hover span { border-color: var(--text); }
+  .chip-check input:checked + span { background: var(--text); border-color: var(--text); color: var(--bg); }
+  .chip-check input:focus-visible + span { outline: 2px solid var(--text); outline-offset: 3px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .form__foot { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+  .form__submit { min-width: 180px; }
+  .form__status { font-size: var(--fs-small); color: var(--danger); }
+  .form__success { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-5); border: 1px solid var(--success); border-radius: var(--radius-sm); color: var(--success); font-size: var(--fs-lead); }
+  .form__success[hidden] { display: none; }
+  .form.is-sent > :not(.form__success) { display: none; }
+
+  .direct { display: grid; gap: var(--space-5); align-content: start; }
+  .direct__list { display: grid; gap: var(--space-3); margin: 0; padding: 0; }
+  .direct__item { display: flex; gap: var(--space-4); align-items: center; padding: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); text-decoration: none; transition: border-color .4s var(--ease); }
+  a.direct__item:hover { border-color: var(--text); }
+  .direct__item > span { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+  .direct__k { font-family: var(--font-condensed); font-weight: 600; font-size: var(--fs-label); letter-spacing: .14em; text-transform: uppercase; }
+  @media (max-width: 900px) { .contact__grid { grid-template-columns: 1fr; gap: var(--space-8); } }
+  @media (max-width: 560px) { .form__row { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-form]')!;
+  const msgs = JSON.parse(form.dataset.msgs!) as Record<string, string>;
+  const status = form.querySelector<HTMLElement>('[data-status]')!;
+  const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+  const success = form.querySelector<HTMLElement>('[data-success]')!;
+
+  function setErr(input: HTMLInputElement | HTMLTextAreaElement, msg: string) {
+    const err = form.querySelector<HTMLElement>(`#${input.id}-err`);
+    input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (err) {
+      err.textContent = msg;
+      err.hidden = !msg;
+      if (msg) input.setAttribute('aria-describedby', err.id);
+      else input.removeAttribute('aria-describedby');
+    }
+  }
+  function validate() {
+    let first: HTMLElement | null = null;
+    for (const el of form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]')) {
+      let msg = '';
+      if (!el.value.trim()) msg = msgs.required;
+      else if (el.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim())) msg = msgs.email;
+      setErr(el, msg);
+      if (msg && !first) first = el;
+    }
+    return first;
+  }
+  form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]').forEach((el) =>
+    el.addEventListener('blur', () => el.getAttribute('aria-invalid') === 'true' && validate()),
+  );
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.hidden = true;
+    const bad = validate();
+    if (bad) { bad.focus(); return; }
+    const fd = new FormData(form);
+    const token = String(fd.get('cf-turnstile-response') || '');
+    if (!token) { status.textContent = msgs.turnstile; status.hidden = false; return; }
+    const body = {
+      name: fd.get('name'), company: fd.get('company'), email: fd.get('email'), phone: fd.get('phone'),
+      needs: fd.getAll('needs'), message: fd.get('message'), website: fd.get('website'), token,
+    };
+    submit.disabled = true;
+    submit.textContent = submit.dataset.sending!;
+    try {
+      const res = await fetch('/api/contact', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || 'server');
+      form.classList.add('is-sent');
+      success.hidden = false;
+      success.focus();
+    } catch (err) {
+      const code = (err as Error).message;
+      status.textContent = code === 'turnstile' ? msgs.turnstile : msgs.server;
+      status.hidden = false;
+      (window as any).turnstile?.reset?.();
+    } finally {
+      submit.disabled = false;
+      submit.textContent = submit.dataset.label!;
+    }
+  });
+</script>

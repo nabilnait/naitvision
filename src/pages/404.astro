@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import Mark from '../components/Mark.astro';
+import { t } from '../i18n';
+const p = t('nl').pages.notFound;
+---
+<Base title={p.metaTitle} noindex>
+  <section class="nf container">
+    <Mark class="nf__mark" />
+    <p class="t-label muted">404</p>
+    <h1 class="nf__title t-display">{p.title}</h1>
+    <p class="t-lead">{p.text}</p>
+    <a class="btn btn--solid" href={p.button.href}>{p.button.label}</a>
+  </section>
+</Base>
+<style>
+  .nf { position: relative; isolation: isolate; min-height: 100svh; display: grid; align-content: center; justify-items: start; gap: var(--space-5); padding-block: 160px var(--space-9); overflow: hidden; }
+  .nf :global(.nf__mark) { position: absolute; z-index: -1; right: -10%; top: 50%; translate: 0 -50%; width: min(90vw, 900px); height: auto; color: var(--text); opacity: var(--opacity-watermark); }
+  .nf__title { font-size: clamp(2.75rem, 7vw, 6rem); max-width: 14ch; letter-spacing: -0.03em; }
+</style>

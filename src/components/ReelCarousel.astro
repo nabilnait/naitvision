@@ -92,7 +92,7 @@ const c = t(Astro.props.lang);
             if (v.preload === 'none') v.preload = 'auto';
             v.play().catch(() => {});
           } else v.pause();
-          if (Math.abs(d) <= 1 && v.preload === 'none') v.preload = 'metadata';
+          if (inView && Math.abs(d) <= 1 && v.preload === 'none') v.preload = 'metadata';
         }
       });
       label.innerHTML = cards[current].querySelector('[data-cap]')!.innerHTML;

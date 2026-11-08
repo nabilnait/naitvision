@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import Fill from '../components/Fill.astro';
+import { t } from '../i18n';
+const p = t('nl').pages.privacy;
+---
+<Base title={p.metaTitle} description={p.metaDescription}>
+  <article class="legal container">
+    <h1 class="legal__title t-display">{p.title}</h1>
+    <p class="muted legal__updated"><Fill text={p.updated} /></p>
+    {p.sections.map((s) => (
+      <section class="legal__section">
+        <h2>{s.h}</h2>
+        {s.p.map((para) => <p><Fill text={para} /></p>)}
+      </section>
+    ))}
+  </article>
+</Base>
+<style>
+  .legal { padding-top: calc(160px + env(safe-area-inset-top, 0px)); padding-bottom: var(--section-pad); }
+  .legal__title { font-size: clamp(3rem, 9vw, 7rem); letter-spacing: -0.03em; }
+  .legal__updated { margin-top: var(--space-4); font-size: var(--fs-small); }
+  .legal__section { max-width: var(--measure-body); margin-top: var(--space-7); padding-top: var(--space-5); border-top: 1px solid var(--line); display: grid; gap: var(--space-3); }
+  .legal__section h2 { font-weight: 500; font-size: var(--fs-step); line-height: 1.2; letter-spacing: -0.01em; }
+</style>

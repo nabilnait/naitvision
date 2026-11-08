@@ -7,7 +7,20 @@ function safePlay(v: HTMLVideoElement) {
   if (p) p.catch(() => {});
 }
 
+const posterIO = new IntersectionObserver(
+  (entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const v = e.target as HTMLVideoElement;
+      if (v.dataset.poster && !v.poster) v.poster = v.dataset.poster;
+      posterIO.unobserve(v);
+    }
+  },
+  { rootMargin: '600px 0px' },
+);
+
 export function initVideos(root: ParentNode = document) {
+  root.querySelectorAll<HTMLVideoElement>('video[data-poster]:not([poster])').forEach((v) => posterIO.observe(v));
   const vids = Array.from(root.querySelectorAll<HTMLVideoElement>('video[data-play]:not([data-bound])'));
   if (!vids.length) return;
   const io = new IntersectionObserver(

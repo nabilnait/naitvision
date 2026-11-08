@@ -23,7 +23,7 @@ for (const p of paths) {
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-    await page.goto(base + p, { waitUntil: 'networkidle' });
+    await page.goto(base + p, { waitUntil: 'load' });
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(1800);
     if (!top) {

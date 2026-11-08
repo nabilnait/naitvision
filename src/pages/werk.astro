@@ -1,0 +1,162 @@
+---
+import Base from '../layouts/Base.astro';
+import MediaSlot from '../components/MediaSlot.astro';
+import Fill from '../components/Fill.astro';
+import Icon from '../components/Icon.astro';
+import { t, isTodo } from '../i18n';
+const c = t('nl');
+const w = c.pages.werk;
+const L = w.caseLabels;
+---
+<Base title={w.metaTitle} description={w.metaDescription}>
+  <section class="werk-hero container">
+    <h1 class="werk-hero__title t-display" data-reveal="lines"><span class="line"><span>{w.title}</span></span></h1>
+  </section>
+
+  <section class="container werk" aria-label={w.title}>
+    <div class="filters" role="group" aria-label={w.filtersLabel} data-filters>
+      {w.filters.map((f, i) => (
+        <button class="chip" type="button" aria-pressed={i === 0 ? 'true' : 'false'} data-filter={f.id}>{f.label}</button>
+      ))}
+    </div>
+
+    <ul class="grid" role="list" data-grid>
+      {w.items.map((it) => (
+        <li class:list={['grid__item', it.ratio === '16/9' && 'grid__item--wide']} data-cats={it.category.join(' ')}>
+          {it.media ? (
+            <button class="grid__btn" type="button" data-hover-host data-open={it.full || `${it.media}.mp4`} data-poster={`${it.media}.jpg`} data-title={isTodo(it.title) ? '' : it.title}>
+              <MediaSlot media={it.media} webm={it.webm} alt={it.alt} wide={it.ratio === '16/9'} play="hover" />
+              <span class="grid__play" aria-hidden="true"><Icon name="play" size={18} /></span>
+              <span class="sr-only">{c.ui.play}: {isTodo(it.title) ? it.alt : it.title}</span>
+            </button>
+          ) : (
+            <MediaSlot alt={it.alt} slotLabel={it.alt} wide={it.ratio === '16/9'} />
+          )}
+          <p class="grid__title t-label"><Fill text={it.title} /></p>
+        </li>
+      ))}
+    </ul>
+    <p class="werk__empty muted" hidden data-empty>{w.empty}</p>
+  </section>
+
+  <section class="section container cases-detail" aria-labelledby="cases-title">
+    <h2 id="cases-title" class="t-section">{w.casesTitle}</h2>
+    <ul role="list" class="cases-detail__list">
+      {c.cases.items.map((cs, i) => (
+        <li class="case-detail" id={cs.slug} data-reveal>
+          <span class="t-label muted">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="case-detail__name">{cs.name}</h3>
+          <dl class="case-detail__facts">
+            <div><dt class="t-label muted">{L.sector}</dt><dd>{cs.sector}</dd></div>
+            <div><dt class="t-label muted">{L.delivered}</dt><dd><Fill text={cs.delivered} /></dd></div>
+            {cs.result && <div><dt class="t-label muted">{L.result}</dt><dd><Fill text={cs.result} /></dd></div>}
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <dialog class="lightbox" data-lightbox aria-label="Video">
+    <button class="lightbox__close" type="button" data-close aria-label={c.ui.close}><Icon name="x" size={22} /></button>
+    <div class="lightbox__frame" data-frame></div>
+  </dialog>
+</Base>
+
+<style>
+  .werk-hero { padding-top: calc(160px + env(safe-area-inset-top, 0px)); padding-bottom: var(--space-8); }
+  .werk-hero__title { font-size: clamp(3.5rem, 12vw, 11rem); line-height: .88; letter-spacing: -0.03em; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: var(--space-3); padding-bottom: var(--space-7); border-bottom: 1px solid var(--line); margin-bottom: var(--space-7); }
+  .chip { min-height: 44px; padding: var(--space-2) var(--space-5); border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: transparent; color: var(--text); font: 500 var(--fs-small)/1.4 var(--font-body); cursor: pointer; transition: background-color .3s var(--ease), color .3s var(--ease), border-color .3s var(--ease); }
+  .chip:hover { border-color: var(--text); }
+  .chip[aria-pressed='true'] { background: var(--text); border-color: var(--text); color: var(--bg); }
+
+  .grid { columns: 3; column-gap: var(--space-4); margin: 0; padding: 0; }
+  .grid__item { break-inside: avoid; margin-bottom: var(--space-6); }
+  .grid__item[hidden] { display: none; }
+  .grid__btn { position: relative; display: block; width: 100%; padding: 0; border: 0; background: none; cursor: pointer; border-radius: var(--radius-sm); }
+  .grid__btn :global(.media) { width: 100%; transition: transform .8s var(--ease); }
+  .grid__btn:hover :global(.media) { transform: scale(1.015); }
+  .grid__item :global(.media) { width: 100%; }
+  .grid__play { position: absolute; right: var(--space-3); bottom: var(--space-3); display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-pill); background: rgba(10, 10, 10, .6); color: var(--text); border: 1px solid var(--line-strong); }
+  .grid__title { margin-top: var(--space-3); color: var(--muted); }
+  @media (max-width: 960px) { .grid { columns: 2; } }
+  @media (max-width: 480px) { .grid { column-gap: var(--space-3); } .grid__item { margin-bottom: var(--space-5); } .grid__play { width: 32px; height: 32px; } }
+
+  .cases-detail__list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6) var(--space-7); margin-top: var(--space-7); padding: 0; }
+  .case-detail { display: grid; gap: var(--space-3); padding-top: var(--space-5); border-top: 1px solid var(--line); scroll-margin-top: 120px; }
+  .case-detail__name { font-family: var(--font-condensed); font-weight: 600; font-size: var(--fs-card); line-height: 1.05; text-transform: uppercase; }
+  .case-detail__facts { display: grid; gap: var(--space-3); margin: 0; }
+  .case-detail__facts dd { margin: 2px 0 0; }
+  @media (max-width: 760px) { .cases-detail__list { grid-template-columns: 1fr; } }
+
+  .lightbox { width: min(92vw, 1100px); max-height: 92vh; padding: 0; border: 0; background: transparent; color: var(--text); overflow: visible; }
+  .lightbox::backdrop { background: rgba(10, 10, 10, .92); }
+  .lightbox__frame { display: grid; place-items: center; }
+  .lightbox__frame :global(video), .lightbox__frame :global(iframe) { max-width: 100%; max-height: 86vh; border-radius: var(--radius-sm); background: #000; }
+  .lightbox__frame :global(iframe) { width: 100%; aspect-ratio: 16 / 9; border: 0; }
+  .lightbox__close { position: fixed; top: calc(var(--space-4) + env(safe-area-inset-top, 0px)); right: calc(var(--space-4) + env(safe-area-inset-right, 0px)); display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: var(--bg); color: var(--text); cursor: pointer; z-index: 2; }
+  .lightbox__close:hover { background: var(--text); color: var(--bg); }
+</style>
+
+<script>
+  import { ScrollTrigger, lenis } from '../scripts/motion';
+
+  // filters
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-cats]'));
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  buttons.forEach((b) =>
+    b.addEventListener('click', () => {
+      buttons.forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+      const f = b.dataset.filter!;
+      let shown = 0;
+      items.forEach((it) => {
+        const on = f === 'alles' || it.dataset.cats!.split(' ').includes(f);
+        it.hidden = !on;
+        if (on) shown++;
+      });
+      empty.hidden = shown > 0;
+      ScrollTrigger.refresh();
+    }),
+  );
+
+  // lightbox
+  const dlg = document.querySelector<HTMLDialogElement>('[data-lightbox]')!;
+  const frame = dlg.querySelector<HTMLElement>('[data-frame]')!;
+  let opener: HTMLElement | null = null;
+  const yt = (u: string) => u.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{11})/)?.[1];
+
+  document.querySelectorAll<HTMLButtonElement>('[data-open]').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      opener = btn;
+      const src = btn.dataset.open!;
+      const id = yt(src);
+      frame.innerHTML = '';
+      if (id) {
+        const f = document.createElement('iframe');
+        f.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+        f.allow = 'autoplay; fullscreen; picture-in-picture';
+        f.allowFullscreen = true;
+        f.title = btn.dataset.title || 'Video';
+        frame.append(f);
+      } else {
+        const v = document.createElement('video');
+        v.src = src;
+        v.poster = btn.dataset.poster || '';
+        v.controls = true;
+        v.autoplay = true;
+        v.playsInline = true;
+        v.loop = true;
+        frame.append(v);
+      }
+      document.querySelectorAll<HTMLVideoElement>('[data-grid] video').forEach((gv) => gv.pause());
+      lenis?.stop();
+      dlg.showModal();
+    }),
+  );
+  const close = () => dlg.close();
+  dlg.querySelector('[data-close]')!.addEventListener('click', close);
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) close(); });
+  dlg.addEventListener('close', () => { frame.innerHTML = ''; lenis?.start(); opener?.focus(); });
+</script>

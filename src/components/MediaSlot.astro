@@ -25,7 +25,8 @@ const label = slotLabel ?? (wide ? 'Video 16:9' : 'Reel 9:16');
       loop
       playsinline
       preload={eager ? 'auto' : 'none'}
-      poster={`${media}.jpg`}
+      poster={eager ? `${media}.jpg` : undefined}
+      data-poster={`${media}.jpg`}
       data-play={play}
       aria-label={isTodo(alt) ? undefined : alt}
       disablepictureinpicture

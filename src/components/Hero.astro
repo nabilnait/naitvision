@@ -43,7 +43,7 @@ const socials = c.socials;
       {socials.map((s) => (
         <li>{isRealHref(s.href)
           ? <a class="hero__social" href={s.href} target="_blank" rel="noopener" aria-label={s.name}><Icon name={s.icon} size={20} /></a>
-          : <span class="hero__social is-todo" title={s.href} aria-label={`${s.name}: ${s.href}`}><Icon name={s.icon} size={20} /></span>}</li>
+          : <span class="hero__social is-todo" role="img" title={s.href} aria-label={`${s.name}: ${s.href}`}><Icon name={s.icon} size={20} /></span>}</li>
       ))}
     </ul>
   )}
@@ -99,7 +99,7 @@ const socials = c.socials;
   }
   @media (prefers-reduced-motion: reduce) { .hero__mouse span { animation: none; } }
   :global(html.js:not(.reduced)) .hero__word > span { transform: translateY(105%); }
-  :global(html.js:not(.reduced)) .hero__h1, :global(html.js:not(.reduced)) .hero__scroll { opacity: 0; }
+  :global(html.js:not(.reduced)) .hero__scroll { opacity: 0; }
 </style>
 
 <script>
@@ -108,7 +108,7 @@ const socials = c.socials;
     const tl = gsap.timeline({ delay: 0.15 });
     tl.fromTo('.hero__word > span', { y: 0, yPercent: 105 }, { y: 0, yPercent: 0, duration: 1, stagger: 0.12 })
       .fromTo('.hero__dot', { scaleX: 0 }, { scaleX: 1, duration: 0.9, stagger: 0.12 }, '<0.2')
-      .fromTo('.hero__h1', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
+      .fromTo('.hero__h1', { y: 12 }, { y: 0, duration: 0.8 }, 0.2)
       .fromTo('.hero__scroll', { opacity: 0 }, { opacity: 1, duration: 0.8 }, '-=0.4')
       .fromTo('.hero__watermark', { scale: 1.08, opacity: 0 }, { scale: 1, opacity: 0.06, duration: 1.6, ease: 'power2.out' }, 0);
   }
