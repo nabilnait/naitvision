@@ -9,7 +9,8 @@
     "fonts": "node scripts/copy-fonts.mjs",
     "shots": "node scripts/shots.mjs",
     "deploy": "astro build && wrangler deploy",
-    "worker:dev": "astro build && wrangler dev"
+    "worker:dev": "astro build && wrangler dev",
+    "linkcheck": "node scripts/linkcheck.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

@@ -224,3 +224,4 @@ Aan het eind lever je:
 
 * 2026-11-08: geen goud. De site is strikt zwart-wit; `--accent` vervalt. Hover, focus en geselecteerde staten werken met inversie (off-white vlak, zwarte tekst) en een off-white focusring. Enkel het contactformulier gebruikt nog een kleur voor succes en fout, altijd met icoon en tekst. Zie het Naitvision design system.
 * 2026-11-08: de site draait als Cloudflare Worker met static assets (niet als Pages). De contact-handler zit in `worker/contact.ts`, aangeroepen vanuit `worker/index.ts` (zie `wrangler.jsonc`). Placeholders worden in productie niet getoond. Hero staat op optie B. De over-ons-tekst verwijst naar het NV-logo dat effectief gebruikt wordt.
+* 2026-11-08: /werk en de cases-sectie zijn verwijderd (301 naar /). Navigatie: DIENSTEN · AANPAK · CONTACT. Contact: info@naitvision.be, BTW BE 0788.569.418.

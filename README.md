@@ -1,6 +1,6 @@
 # Naitvision website
 
-Static Astro site for Naitvision: home, /werk, /contact, /privacy and a 404. Dark, black and white, video-first. The brief is in [docs/BRIEF.md](docs/BRIEF.md); open placeholders are in [docs/PLACEHOLDERS.md](docs/PLACEHOLDERS.md).
+Static Astro site for Naitvision: home, /contact, /privacy and a 404 (/werk was removed and redirects to / with a 301). Dark, black and white, video-first. The brief is in [docs/BRIEF.md](docs/BRIEF.md); open placeholders are in [docs/PLACEHOLDERS.md](docs/PLACEHOLDERS.md).
 
 **Stack:** Astro 7 (static output), TypeScript, plain CSS with custom properties, GSAP + ScrollTrigger, Lenis, self-hosted fonts (Tomorrow, Barlow Condensed, Inter). Hosted as a **Cloudflare Worker** with static assets: `worker/index.ts` serves `dist/` and handles the contact form at `/api/contact` (Turnstile + Resend). Cookieless Cloudflare Web Analytics.
 
@@ -15,10 +15,17 @@ npm run build      # production build in dist/
 npm run preview    # serve dist/ on http://localhost:4321
 ```
 
+Check for dead links (against `npm run worker:dev`, or pass the live URL):
+
+```bash
+npm run linkcheck
+npm run linkcheck -- https://naitvision.nabil-naits.workers.dev
+```
+
 Screenshots at 375, 768 and 1440 px (needs `npx playwright install chromium` once):
 
 ```bash
-npm run shots -- / /werk /contact
+npm run shots -- / /contact /privacy
 ```
 
 The contact form calls `/api/contact`, which is handled by the Worker, not by Astro. To run the site exactly as Cloudflare does (Worker + assets), copy `.dev.vars.example` to `.dev.vars`, then:
@@ -31,7 +38,7 @@ With the test secret from `.dev.vars.example`, Turnstile always passes; a fake R
 
 ## Change the text
 
-All copy is in **`src/content/site.ts`**, grouped per section in page order (`hero`, `marquee`, `intro`, `clients`, `impact`, `process`, `services`, `cases`, `about`, `faq`, `finalCta`, `footer`, then `pages.werk`, `pages.contact`, `pages.privacy`, `pages.notFound`). Components never hold text.
+All copy is in **`src/content/site.ts`**, grouped per section in page order (`business`, `nav`, `hero`, `marquee`, `intro`, `clients`, `impact`, `process`, `services`, `about`, `faq`, `finalCta`, `footer`, then `pages.contact`, `pages.privacy`, `pages.notFound`). Components never hold text.
 
 - Anything written as `[INVULLEN: ...]` is **shown with a dashed outline in `npm run dev` only**. A production build drops every sentence that contains one, and leaves out items that end up empty: FAQ questions without an answer, stats without a value, grid items without media, contact details and social links that aren't filled in, empty privacy paragraphs.
 - To review a production build with the placeholders visible: `SHOW_PLACEHOLDERS=1 npm run build`.
@@ -55,7 +62,7 @@ Design tokens (colours, type scale, spacing) are in `src/styles/tokens.css` and 
    Each clip becomes `public/media/<name>.mp4` (H.264), `.webm` (VP9) and a poster of its exact first frame as `.webp` and `.avif` (via `scripts/posters.mjs`): 8 seconds, no audio, max 720 px on the short side, aiming under 3 MB. The script warns when a clip comes out bigger.
 4. Reference it in site.ts as `media: '/media/<name>', webm: true`.
 
-Full-length videos for the /werk lightbox do not belong in the repo. Upload them to YouTube (unlisted) or Cloudflare R2/Stream and put the link in `full` for that item. YouTube links are embedded through youtube-nocookie.com, only after a click.
+Full-length videos do not belong in the repo; host them on YouTube (unlisted) or Cloudflare R2/Stream.
 
 The loops in `public/media` now were made from the files in `raw/` with macOS's own video tools, because ffmpeg wasn't installed yet. They are MP4 only (posters are WebP + AVIF). Rerun the script once ffmpeg is installed to add the WebM versions.
 
@@ -72,46 +79,48 @@ The site runs as a Worker. `wrangler.jsonc` points the Worker at `worker/index.t
 3. **The `name` in `wrangler.jsonc` must match the Worker's name in the dashboard** (it is `naitvision` now). Change one of them if they differ, or the deploy creates a second Worker.
 4. Under **Build** → **Variables and secrets** (these are available while building):
    - `NODE_VERSION` = `22`
-   - `SITE_URL` = the address the site lives on now, e.g. `https://naitvision.<account>.workers.dev` (later your own domain)
+   - `SITE_URL` = the address the site lives on now, `https://naitvision.nabil-naits.workers.dev` (later `https://naitvision.be`)
    - `PUBLIC_TURNSTILE_SITE_KEY` = the Turnstile site key (step 3)
 
-### 2. Runtime variables and secrets (used by `/api/contact`)
+### 2. Contact form settings
 
-Worker → **Settings** → **Variables and Secrets** → **Add**:
+`wrangler.jsonc` already sets the non-secret values, so they deploy with the code:
 
-| Name | Type | Value |
-| --- | --- | --- |
-| `TURNSTILE_SECRET_KEY` | Secret | Turnstile secret key (step 3) |
-| `RESEND_API_KEY` | Secret | Resend API key (step 4) |
-| `CONTACT_TO` | Text | the mailbox that receives requests |
-| `CONTACT_FROM` | Text | a sender on your verified domain, e.g. `Naitvision website <website@naitvision.be>` |
+- `CONTACT_TO` = `info@naitvision.be` (where requests arrive)
+- `CONTACT_FROM` = `Naitvision website <website@naitvision.be>` (sender, must be on the domain verified in Resend)
 
-If any of these is missing, `/api/contact` answers `500 {"error":"config"}` and never sends. `wrangler.jsonc` has `keep_vars: true`, so deploys don't wipe these.
+The visitor's e-mail address is set as reply-to, so "Reply" in your mailbox answers them directly.
 
-### 3. Turnstile (spam protection, verified on the server)
+The two secrets are set once from this folder (see the setup steps in [docs/SETUP-CONTACT.md](docs/SETUP-CONTACT.md)):
 
-1. Cloudflare dashboard → **Turnstile** → **Add widget**. Hostnames: your `*.workers.dev` address and, later, `naitvision.be`. Mode: **Managed**.
-2. Site key → build variable `PUBLIC_TURNSTILE_SITE_KEY`. Secret key → runtime secret `TURNSTILE_SECRET_KEY`.
-3. Redeploy (Deployments → retry, or push a commit): the site key is baked in at build time.
+```bash
+npx wrangler login
+npx wrangler secret put TURNSTILE_SECRET_KEY
+npx wrangler secret put RESEND_API_KEY
+```
 
-Without a site key, a production build disables the form and shows a short notice instead; the build log says so. The test key is only used in `npm run dev`.
+If any value is missing, `/api/contact` answers `500 {"error":"config"}` and sends nothing.
 
-### 4. Resend (sends the form to your mailbox)
+### 3. Turnstile site key
 
-1. resend.com → **Domains** → **Add domain**, add the DNS records it shows (SPF, DKIM) in Cloudflare DNS, wait for *Verified*. Until you have a domain you can test with `onboarding@resend.dev` as sender, which only delivers to your own Resend account address.
-2. **API Keys** → **Create API key** with *Sending access* → secret `RESEND_API_KEY`.
+Either of these works:
 
-Replies go straight to the visitor: the function sets their address as reply-to.
+- **Build variable** `PUBLIC_TURNSTILE_SITE_KEY`: Worker → Settings → **Build** → Variables and secrets. It must be under *Build*, not under the runtime "Variables and Secrets", or the build never sees it. Then trigger a new build.
+- **Runtime variable** `TURNSTILE_SITE_KEY`: the Worker fills it into `/contact` on every request when the build had none. Set it in the dashboard (Settings → Variables and Secrets, type Text) or uncomment it in `wrangler.jsonc` `vars`.
+
+Without either, `/contact` shows a short "temporarily unavailable" notice instead of the form.
+
+### 4. Resend and Turnstile accounts
+
+Step by step in [docs/SETUP-CONTACT.md](docs/SETUP-CONTACT.md): verify `naitvision.be` in Resend, create the Turnstile widget, set the secrets, and test.
 
 ### 5. Test the live form with a real POST
 
-After deploying, from any terminal (replace the URL):
-
 ```bash
-curl -i -X POST https://naitvision.<account>.workers.dev/api/contact -H 'content-type: application/json' -d '{"name":"Test","company":"Test","email":"test@example.com","message":"Test","token":"x"}'
+curl -i -X POST https://naitvision.nabil-naits.workers.dev/api/contact -H 'content-type: application/json' -d '{"name":"Test","company":"Test","email":"test@example.com","message":"Test","token":"x"}'
 ```
 
-Expected: `400 {"ok":false,"error":"turnstile"}` (the route exists and Turnstile is checked on the server; a 404 means the Worker entry isn't deployed, a 500 `config` means a variable is missing). Then send the real form once in the browser and check the mailbox.
+Expected once configured: `400 {"ok":false,"error":"turnstile"}` (the route works and Turnstile is checked on the server). `500 config` means a value is missing. Then send the real form in the browser and check info@naitvision.be.
 
 ### 6. Custom domain (later)
 
@@ -132,7 +141,8 @@ src/styles/                tokens.css (design tokens), global.css
 src/layouts/Base.astro     <head>, SEO, JSON-LD, header, footer
 src/components/            one component per section
 src/scripts/               motion.ts (GSAP, Lenis), main.ts (reveals, counts, parallax), videos.ts
-src/pages/                 index, werk, contact, privacy, 404, robots.txt
+src/pages/                 index, contact, privacy, 404, robots.txt
+public/_redirects          301 /werk and /werk/* to /
 worker/index.ts            Worker entry: static assets + /api/contact
 worker/contact.ts          contact handler: Turnstile (server-side) + Resend
 wrangler.jsonc             Worker config (name, assets, run_worker_first)
@@ -150,8 +160,7 @@ Logo/                      original logo files and the SVG mark
 | Page | Mobile perf / a11y / best practices / SEO | Desktop |
 | --- | --- | --- |
 | Home (hero option B) | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
-| /werk | 97 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | /contact | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | /privacy | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 
-Mobile LCP: home 0.9 s, /werk 2.6 s, /contact 0.9 s. Measured locally, so expect slightly different numbers on Cloudflare; rerun on the live URL.
+Mobile LCP: home 0.9 s, /contact 0.9 s. Measured locally, so expect slightly different numbers on Cloudflare; rerun on the live URL.

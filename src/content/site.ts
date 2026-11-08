@@ -39,12 +39,15 @@ const nl = {
     name: 'Naitvision',
     founded: '2022',
     region: 'Limburg, België',
-    email: '[INVULLEN: e-mail]',
-    phone: '[INVULLEN: telefoon]',
-    /** international format without + or spaces, e.g. 32470123456 */
-    whatsapp: '[INVULLEN: WhatsApp-nummer]',
+    email: 'info@naitvision.be',
+    /** Leave empty to hide. Format as you want it shown, e.g. '+32 470 12 34 56'. */
+    phone: '',
+    /** Leave empty to hide. International format without + or spaces, e.g. 32470123456. */
+    whatsapp: '',
+    /** Legally required. Shown in the footer and on /privacy as soon as it is filled in. */
     address: '[INVULLEN: adres]',
-    vat: '[INVULLEN: BE ...]',
+    /** As shown on the site; the structured data uses it without spaces and dots. */
+    vat: 'BE 0788.569.418',
   },
 
   ui: {
@@ -61,7 +64,7 @@ const nl = {
 
   nav: [
     { label: 'Diensten', href: '/#diensten' },
-    { label: 'Werk', href: '/werk' },
+    { label: 'Aanpak', href: '/#aanpak' },
     { label: 'Contact', href: '/contact' },
   ],
   headerCta: { label: 'Plan een gesprek', href: '/contact' },
@@ -158,70 +161,6 @@ const nl = {
     ],
   },
 
-  cases: {
-    id: 'cases',
-    label: 'Uitgelicht werk',
-    title: ['Recent', 'werk'],
-    cta: { label: 'Bekijk al ons werk', href: '/werk' },
-    /** Names only with permission. `category` drives the filters on /werk. */
-    items: [
-      {
-        slug: 'voetbalkamp-jeugd',
-        name: 'Voetbalkamp jeugd',
-        sector: 'Sport · events',
-        category: ['short-form', 'foto', 'video'],
-        delivered: '10 reels, 150+ foto’s, 1 aftermovie',
-        result: '[INVULLEN: views]',
-        media: '/media/reel-voetbalkamp',
-      },
-      {
-        slug: 'feestzaal-antwerpen',
-        name: 'Feestzaal Antwerpen',
-        sector: 'Horeca · events',
-        category: ['foto', 'video'],
-        delivered: 'Foto en video bij de opening',
-        result: '',
-        media: undefined as string | undefined,
-      },
-      {
-        slug: 'veranda-bouwer',
-        name: 'Veranda-bouwer',
-        sector: 'Bouw',
-        category: ['foto', '360'],
-        delivered: 'Showroomfoto’s en een 360° tour op hun website',
-        result: '',
-        media: undefined as string | undefined,
-      },
-      {
-        slug: 'wellness-dilsen',
-        name: 'Wellness Dilsen',
-        sector: 'Wellness',
-        category: ['short-form'],
-        delivered: 'Reels',
-        result: '[INVULLEN: views van de beste reel]',
-        media: '/media/reel-wellness',
-      },
-      {
-        slug: 'profvoetballers',
-        name: 'Profvoetballers',
-        sector: 'Sport · matchbeelden',
-        category: ['video', 'foto'],
-        delivered: '[INVULLEN: namen indien toegestaan]',
-        result: '',
-        media: '/media/reel-stadion',
-      },
-      {
-        slug: 'voetbalinfluencer',
-        name: 'Reeks met een voetbalinfluencer',
-        sector: 'Sport · creator',
-        category: ['short-form'],
-        delivered: '[INVULLEN]',
-        result: '',
-        media: undefined as string | undefined,
-      },
-    ],
-  },
-
   about: {
     id: 'over-ons',
     title: ['Twee broers.', 'Één blik.'],
@@ -260,47 +199,14 @@ const nl = {
     privacy: { label: 'Privacy', href: '/privacy' },
     sitemap: [
       { label: 'Home', href: '/' },
-      { label: 'Werk', href: '/werk' },
+      { label: 'Diensten', href: '/#diensten' },
+      { label: 'Aanpak', href: '/#aanpak' },
       { label: 'Contact', href: '/contact' },
     ],
-    vatLabel: 'Ondernemingsnummer',
+    vatLabel: 'BTW',
   },
 
   pages: {
-    werk: {
-      title: 'Ons werk',
-      metaTitle: 'Ons werk',
-      metaDescription: 'Reels, foto, video en 360° tours die we maakten voor ondernemers in Limburg en daarbuiten.',
-      filtersLabel: 'Filter op soort werk',
-      filters: [
-        { id: 'alles', label: 'Alles' },
-        { id: 'short-form', label: 'Short-form' },
-        { id: 'foto', label: 'Foto' },
-        { id: 'video', label: 'Video' },
-        { id: '360', label: '360°' },
-      ],
-      /** Grid items. `ratio` '9/16' or '16/9'. `full` = link to the full video (YouTube unlisted or R2) for the lightbox. */
-      items: [
-        { media: '/media/reel-barber', ratio: '9/16', category: ['short-form'], title: '[INVULLEN: klant]', alt: 'Reel in een barbershop', full: '' },
-        { media: '/media/reel-stadion', ratio: '9/16', category: ['video'], title: '[INVULLEN: klant]', alt: 'Matchbeelden in een voetbalstadion', full: '' },
-        { media: undefined, ratio: '16/9', category: ['video'], title: '[INVULLEN: aftermovie]', alt: 'Video 16:9', full: '' },
-        { media: '/media/reel-wellness', ratio: '9/16', category: ['short-form'], title: 'Wellness Dilsen', alt: 'Reel van een wellnessavond', full: '' },
-        { media: '/media/reel-drone', ratio: '9/16', category: ['video'], title: '[INVULLEN: klant]', alt: 'Dronebeelden boven een bedrijfsterrein met auto’s', full: '' },
-        { media: undefined, ratio: '16/9', category: ['360'], title: '[INVULLEN: 360° tour]', alt: '360° tour', full: '' },
-        { media: '/media/reel-voetbalkamp', ratio: '9/16', category: ['short-form', 'video'], title: 'Voetbalkamp jeugd', alt: 'Reel van een jeugdvoetbalkamp', full: '' },
-        { media: '/media/reel-markt', ratio: '9/16', category: ['short-form'], title: '[INVULLEN: klant]', alt: 'Reel op de markt met een ondernemer', full: '' },
-        { media: undefined, ratio: '16/9', category: ['foto'], title: '[INVULLEN: fotoreeks]', alt: 'Foto 16:9', full: '' },
-        { media: '/media/reel-physio', ratio: '9/16', category: ['short-form'], title: '[INVULLEN: klant]', alt: 'Reel bij een kinesitherapeut', full: '' },
-        { media: '/media/reel-athan', ratio: '9/16', category: ['video'], title: '[INVULLEN: klant]', alt: 'Video van een zanger tijdens een event', full: '' },
-        { media: '/media/reel-autodealer', ratio: '9/16', category: ['short-form'], title: '[INVULLEN: klant]', alt: 'Reel bij een autodealer', full: '' },
-        { media: '/media/reel-presentatie', ratio: '9/16', category: ['short-form'], title: '[INVULLEN: klant]', alt: 'Reel met een presentatrice', full: '' },
-        { media: '/media/reel-gym', ratio: '9/16', category: ['short-form'], title: '[INVULLEN: klant]', alt: 'Reel in een sportschool', full: '' },
-        { media: '/media/reel-physio-vr', ratio: '9/16', category: ['short-form'], title: '[INVULLEN: klant]', alt: 'Reel met een VR-bril bij een kinesitherapeut', full: '' },
-      ] as { media?: string; webm?: boolean; ratio: '9/16' | '16/9'; category: string[]; title: string; alt: string; full: string }[],
-      casesTitle: 'Cases',
-      caseLabels: { client: 'Klant', sector: 'Sector', delivered: 'Wat we leverden', result: 'Resultaat' },
-      empty: 'Nog geen werk in deze categorie.',
-    },
     contact: {
       title: 'Vertel ons wat je nodig hebt',
       metaTitle: 'Contact',
@@ -339,7 +245,7 @@ const nl = {
       sections: [
         {
           h: 'Wie zijn wij',
-          p: ['Naitvision, [INVULLEN: adres], ondernemingsnummer [INVULLEN: BE ...]. Vragen over je gegevens stuur je naar [INVULLEN: e-mail].'],
+          p: ['Naitvision, btw-nummer BE 0788.569.418. Adres: [INVULLEN: adres]. Vragen over je gegevens stuur je naar info@naitvision.be.'],
         },
         {
           h: 'Wat het contactformulier verzamelt',
@@ -367,7 +273,7 @@ const nl = {
         {
           h: 'Je rechten',
           p: [
-            'Je kan altijd vragen welke gegevens we van je hebben, ze laten aanpassen of laten verwijderen. Mail naar [INVULLEN: e-mail]. Ben je niet tevreden over hoe we ermee omgaan, dan kan je klacht indienen bij de Gegevensbeschermingsautoriteit (gegevensbeschermingsautoriteit.be).',
+            'Je kan altijd vragen welke gegevens we van je hebben, ze laten aanpassen of laten verwijderen. Mail naar info@naitvision.be. Ben je niet tevreden over hoe we ermee omgaan, dan kan je klacht indienen bij de Gegevensbeschermingsautoriteit (gegevensbeschermingsautoriteit.be).',
           ],
         },
       ],

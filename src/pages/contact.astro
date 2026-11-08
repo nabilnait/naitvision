@@ -7,11 +7,12 @@ const c = t('nl');
 const p = c.pages.contact;
 const b = c.business;
 const F = p.fields;
-// Real Turnstile site key from the build environment. Cloudflare's always-passes test key
-// is only used in local dev; a production build without a key disables the form.
-const realKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
+// Turnstile site key. Read at build time from PUBLIC_TURNSTILE_SITE_KEY (Worker > Settings > Build > Variables).
+// If the build had none, the Worker fills it in at request time from the runtime variable
+// TURNSTILE_SITE_KEY (see worker/index.ts). Cloudflare's always-passes test key is only used in `astro dev`.
+const realKey = (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? process.env.PUBLIC_TURNSTILE_SITE_KEY) as string | undefined;
 const siteKey = realKey || (import.meta.env.DEV ? '1x00000000000000000000AA' : '');
-if (!siteKey) console.warn('\n[contact] PUBLIC_TURNSTILE_SITE_KEY is not set: the contact form is disabled in this build.\n');
+if (!siteKey) console.warn('\n[contact] PUBLIC_TURNSTILE_SITE_KEY is not set at build time; the Worker must inject TURNSTILE_SITE_KEY at runtime, or the form stays disabled.\n');
 const msgs = JSON.stringify(p.errors);
 const hasDirect = [b.whatsapp, b.email, b.phone].some(showDetail);
 ---
@@ -23,8 +24,8 @@ const hasDirect = [b.whatsapp, b.email, b.phone].some(showDetail);
     <p class="t-lead contact__intro" data-reveal>{p.intro}</p>
 
     <div class="contact__grid">
-      {!siteKey && <p class="form__off" role="status">{p.unavailable}</p>}
-      <form class="form" novalidate data-form data-msgs={msgs} hidden={!siteKey}>
+      <p class="form__off" role="status" data-form-off hidden>{p.unavailable}</p>
+      <form class="form" novalidate data-form data-msgs={msgs}>
         <div class="form__row">
           <div class="field"><label for="f-name">{F.name}</label><input id="f-name" name="name" autocomplete="name" required /><p class="field__err" id="f-name-err" hidden></p></div>
           <div class="field"><label for="f-company">{F.company}</label><input id="f-company" name="company" autocomplete="organization" required /><p class="field__err" id="f-company-err" hidden></p></div>
@@ -43,7 +44,7 @@ const hasDirect = [b.whatsapp, b.email, b.phone].some(showDetail);
         </fieldset>
         <div class="field"><label for="f-message">{F.message}</label><textarea id="f-message" name="message" rows="6" placeholder={F.messagePlaceholder} required></textarea><p class="field__err" id="f-message-err" hidden></p></div>
         <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <div class="cf-turnstile" data-sitekey={siteKey} data-theme="dark" data-language="nl"></div>
+        <div class="cf-turnstile" data-sitekey={siteKey} data-theme="dark" data-language="nl" data-turnstile></div>
         <div class="form__foot">
           <button class="btn btn--solid form__submit" type="submit" data-submit data-label={p.submit} data-sending={p.sending}>{p.submit}</button>
           <p class="form__status" role="status" aria-live="polite" data-status hidden></p>
@@ -71,7 +72,20 @@ const hasDirect = [b.whatsapp, b.email, b.phone].some(showDetail);
       </aside>
     </div>
   </section>
-  {siteKey && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+  <script is:inline>
+    (function () {
+      var box = document.querySelector('[data-turnstile]');
+      if (box && box.getAttribute('data-sitekey')) {
+        var s = document.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+        s.async = true;
+        document.head.appendChild(s);
+      } else {
+        document.querySelector('[data-form]').hidden = true;
+        document.querySelector('[data-form-off]').hidden = false;
+      }
+    })();
+  </script>
 </Base>
 
 <style>

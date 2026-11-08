@@ -31,10 +31,10 @@ const localBusiness = {
   logo: new URL('/icon-512.png', Astro.site).href,
   foundingDate: b.founded,
   areaServed: { '@type': 'AdministrativeArea', name: 'Limburg, België' },
-  address: { '@type': 'PostalAddress', addressRegion: 'Limburg', addressCountry: 'BE' },
-  ...(isTodo(b.email) ? {} : { email: b.email }),
-  ...(isTodo(b.phone) ? {} : { telephone: b.phone }),
-  ...(isTodo(b.vat) ? {} : { vatID: b.vat }),
+  address: { '@type': 'PostalAddress', addressRegion: 'Limburg', addressCountry: 'BE', ...(isTodo(b.address) || !b.address ? {} : { streetAddress: b.address }) },
+  ...(isTodo(b.email) || !b.email ? {} : { email: b.email }),
+  ...(isTodo(b.phone) || !b.phone ? {} : { telephone: b.phone }),
+  ...(isTodo(b.vat) || !b.vat ? {} : { vatID: b.vat.replace(/[\s.]/g, '') }),
   sameAs: c.socials.map((s) => s.href).filter(isRealHref),
 };
 const beacon = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
