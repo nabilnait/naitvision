@@ -2,7 +2,7 @@
 
 Static Astro site for Naitvision: home, /werk, /contact, /privacy and a 404. Dark, black and white, video-first. The brief is in [docs/BRIEF.md](docs/BRIEF.md); open placeholders are in [docs/PLACEHOLDERS.md](docs/PLACEHOLDERS.md).
 
-**Stack:** Astro 7 (static output), TypeScript, plain CSS with custom properties, GSAP + ScrollTrigger, Lenis, self-hosted fonts (Tomorrow, Barlow Condensed, Inter). Hosting on Cloudflare Pages, with a Pages Function for the contact form (Resend + Turnstile) and cookieless Cloudflare Web Analytics.
+**Stack:** Astro 7 (static output), TypeScript, plain CSS with custom properties, GSAP + ScrollTrigger, Lenis, self-hosted fonts (Tomorrow, Barlow Condensed, Inter). Hosted as a **Cloudflare Worker** with static assets: `worker/index.ts` serves `dist/` and handles the contact form at `/api/contact` (Turnstile + Resend). Cookieless Cloudflare Web Analytics.
 
 ## Run it locally
 
@@ -21,16 +21,22 @@ Screenshots at 375, 768 and 1440 px (needs `npx playwright install chromium` onc
 npm run shots -- / /werk /contact
 ```
 
-The contact form calls `/api/contact`, which only exists on Cloudflare. To test it locally, copy `.dev.vars.example` to `.dev.vars`, build, then run `npx wrangler pages dev dist`.
+The contact form calls `/api/contact`, which is handled by the Worker, not by Astro. To run the site exactly as Cloudflare does (Worker + assets), copy `.dev.vars.example` to `.dev.vars`, then:
+
+```bash
+npm run worker:dev     # builds, then serves on http://localhost:8787
+```
+
+With the test secret from `.dev.vars.example`, Turnstile always passes; a fake Resend key makes the last step fail with `{"error":"server"}`, which proves the whole path up to sending.
 
 ## Change the text
 
 All copy is in **`src/content/site.ts`**, grouped per section in page order (`hero`, `marquee`, `intro`, `clients`, `impact`, `process`, `services`, `cases`, `about`, `faq`, `finalCta`, `footer`, then `pages.werk`, `pages.contact`, `pages.privacy`, `pages.notFound`). Components never hold text.
 
-- Anything written as `[INVULLEN: ...]` shows on the site with a dashed outline until you replace it.
-- Social links, e-mail, phone and WhatsApp that are still placeholders are shown as placeholders or hidden; they become real links once filled in.
-- FAQ answers that are still placeholders are left out of the FAQ structured data automatically.
-- Hero option B (dimmed showreel behind the logo): set `hero.variant` to `'video'` in site.ts, or pass `<Hero variant="video" />` in `src/pages/index.astro`.
+- Anything written as `[INVULLEN: ...]` is **shown with a dashed outline in `npm run dev` only**. A production build drops every sentence that contains one, and leaves out items that end up empty: FAQ questions without an answer, stats without a value, grid items without media, contact details and social links that aren't filled in, empty privacy paragraphs.
+- To review a production build with the placeholders visible: `SHOW_PLACEHOLDERS=1 npm run build`.
+- The clients band appears only once `clients.items` holds at least 4 real names.
+- Hero: `hero.variant` is `'video'` (option B: up to three 9:16 loops side by side at 35% opacity, one on phones, poster first, loop starts once the page is idle). Set it to `'watermark'` for option A (black with the large NV mark).
 - English later: add an `en` object next to `nl` at the bottom of site.ts with the same shape, add `'en'` to `locales` in `astro.config.mjs`, and create pages under `src/pages/en/` that call `t('en')`.
 
 Design tokens (colours, type scale, spacing) are in `src/styles/tokens.css` and match the Naitvision design system.
@@ -46,66 +52,76 @@ Design tokens (colours, type scale, spacing) are in `src/styles/tokens.css` and 
    START=12 DURATION=6 scripts/compress-videos.sh raw/my-clip.mp4
    ```
 
-   Each clip becomes `public/media/<name>.mp4` (H.264), `.webm` (VP9) and a `.jpg` + `.webp` poster: 8 seconds, no audio, max 720 px on the short side, aiming under 3 MB. The script warns when a clip comes out bigger.
+   Each clip becomes `public/media/<name>.mp4` (H.264), `.webm` (VP9) and a poster of its exact first frame as `.webp` and `.avif` (via `scripts/posters.mjs`): 8 seconds, no audio, max 720 px on the short side, aiming under 3 MB. The script warns when a clip comes out bigger.
 4. Reference it in site.ts as `media: '/media/<name>', webm: true`.
 
 Full-length videos for the /werk lightbox do not belong in the repo. Upload them to YouTube (unlisted) or Cloudflare R2/Stream and put the link in `full` for that item. YouTube links are embedded through youtube-nocookie.com, only after a click.
 
-The loops in `public/media` now were made from the files in `raw/` with macOS's own video tools, because ffmpeg wasn't installed yet. They are MP4 only. Rerun the script once ffmpeg is installed to add the WebM versions.
+The loops in `public/media` now were made from the files in `raw/` with macOS's own video tools, because ffmpeg wasn't installed yet. They are MP4 only (posters are WebP + AVIF). Rerun the script once ffmpeg is installed to add the WebM versions.
 
-## Deploy on Cloudflare Pages
+## Deploy on Cloudflare (Worker with static assets)
 
-### 1. GitHub
+The site runs as a Worker. `wrangler.jsonc` points the Worker at `worker/index.ts` and serves `dist/` as static assets; requests to `/api/*` go to the Worker first, everything else is served straight from `dist/` (404s get `404.html`).
 
-Create an empty repository on GitHub, then:
+> `functions/` is only used if you ever move to Cloudflare **Pages**. On Workers it is ignored; the same handler lives in `worker/contact.ts`.
 
-```bash
-git remote add origin git@github.com:<account>/naitvision-site.git
-git push -u origin main
-```
+### 1. Worker project (already connected to GitHub)
 
-### 2. Pages project
+1. Cloudflare dashboard → **Workers & Pages** → your Worker → **Settings** → **Build**.
+2. Build command: `npm run build`. Deploy command: `npx wrangler deploy`. Root directory: `/`.
+3. **The `name` in `wrangler.jsonc` must match the Worker's name in the dashboard** (it is `naitvision` now). Change one of them if they differ, or the deploy creates a second Worker.
+4. Under **Build** → **Variables and secrets** (these are available while building):
+   - `NODE_VERSION` = `22`
+   - `SITE_URL` = the address the site lives on now, e.g. `https://naitvision.<account>.workers.dev` (later your own domain)
+   - `PUBLIC_TURNSTILE_SITE_KEY` = the Turnstile site key (step 3)
 
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** → pick the repository.
-2. Framework preset: **Astro**. Build command: `npm run build`. Build output directory: `dist`.
-3. Under **Environment variables** add `NODE_VERSION` = `22` and `SITE_URL` = `https://naitvision.be` (your real domain).
-4. **Save and Deploy**. The `functions/` folder is picked up automatically and becomes `/api/contact`.
+### 2. Runtime variables and secrets (used by `/api/contact`)
 
-### 3. Custom domain
+Worker → **Settings** → **Variables and Secrets** → **Add**:
 
-1. Pages project → **Custom domains** → **Set up a custom domain** → enter `naitvision.be` → follow the steps. If the domain's DNS is already on Cloudflare, the record is created for you; otherwise add the CNAME it shows at your registrar.
-2. Repeat for `www.naitvision.be`, then in **Rules** → **Redirect Rules** redirect `www` to the bare domain (or the other way round; pick one).
-3. Update `SITE_URL` if it changed and redeploy.
+| Name | Type | Value |
+| --- | --- | --- |
+| `TURNSTILE_SECRET_KEY` | Secret | Turnstile secret key (step 3) |
+| `RESEND_API_KEY` | Secret | Resend API key (step 4) |
+| `CONTACT_TO` | Text | the mailbox that receives requests |
+| `CONTACT_FROM` | Text | a sender on your verified domain, e.g. `Naitvision website <website@naitvision.be>` |
+
+If any of these is missing, `/api/contact` answers `500 {"error":"config"}` and never sends. `wrangler.jsonc` has `keep_vars: true`, so deploys don't wipe these.
+
+### 3. Turnstile (spam protection, verified on the server)
+
+1. Cloudflare dashboard → **Turnstile** → **Add widget**. Hostnames: your `*.workers.dev` address and, later, `naitvision.be`. Mode: **Managed**.
+2. Site key → build variable `PUBLIC_TURNSTILE_SITE_KEY`. Secret key → runtime secret `TURNSTILE_SECRET_KEY`.
+3. Redeploy (Deployments → retry, or push a commit): the site key is baked in at build time.
+
+Without a site key, a production build disables the form and shows a short notice instead; the build log says so. The test key is only used in `npm run dev`.
 
 ### 4. Resend (sends the form to your mailbox)
 
-1. Make an account at resend.com → **Domains** → **Add domain** → `naitvision.be`.
-2. Add the DNS records Resend shows (SPF, DKIM) in Cloudflare → your domain → **DNS**. Wait until Resend says *Verified*.
-3. Resend → **API Keys** → **Create API key** with *Sending access*.
-4. Pages project → **Settings** → **Variables and Secrets** (Production), add:
-   - `RESEND_API_KEY` (type *Secret*): the key from step 3
-   - `CONTACT_TO`: the mailbox that should receive requests
-   - `CONTACT_FROM`: a sender on your verified domain, e.g. `Naitvision website <website@naitvision.be>`
+1. resend.com → **Domains** → **Add domain**, add the DNS records it shows (SPF, DKIM) in Cloudflare DNS, wait for *Verified*. Until you have a domain you can test with `onboarding@resend.dev` as sender, which only delivers to your own Resend account address.
+2. **API Keys** → **Create API key** with *Sending access* → secret `RESEND_API_KEY`.
 
 Replies go straight to the visitor: the function sets their address as reply-to.
 
-### 5. Turnstile (spam protection)
+### 5. Test the live form with a real POST
 
-1. Cloudflare dashboard → **Turnstile** → **Add widget**. Name: Naitvision. Hostnames: `naitvision.be` and your `*.pages.dev` address. Mode: **Managed**.
-2. Copy the keys into the Pages variables:
-   - `PUBLIC_TURNSTILE_SITE_KEY` (plain text; read at build time)
-   - `TURNSTILE_SECRET_KEY` (type *Secret*)
-3. **Redeploy** (Deployments → ⋯ → Retry deployment), because the site key is baked in at build time.
+After deploying, from any terminal (replace the URL):
 
-Until the site key is set, the form uses Cloudflare's test key and shows "Alleen voor testen". Submissions will fail on the server with the real secret, which is expected.
+```bash
+curl -i -X POST https://naitvision.<account>.workers.dev/api/contact -H 'content-type: application/json' -d '{"name":"Test","company":"Test","email":"test@example.com","message":"Test","token":"x"}'
+```
 
-### 6. Web Analytics (no cookies, no banner)
+Expected: `400 {"ok":false,"error":"turnstile"}` (the route exists and Turnstile is checked on the server; a 404 means the Worker entry isn't deployed, a 500 `config` means a variable is missing). Then send the real form once in the browser and check the mailbox.
 
-Pages project → **Metrics** → **Web Analytics** → **Enable**. Cloudflare injects the script itself. Use this *or* the `PUBLIC_CF_BEACON_TOKEN` variable, not both, or visits are counted twice.
+### 6. Custom domain (later)
 
-### After each change
+Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain** → `naitvision.be` (and `www`). Then update `SITE_URL`, add the domain to the Turnstile widget, and redeploy.
 
-Pushing to `main` deploys automatically. Other branches get a preview URL.
+### 7. Web Analytics (no cookies, no banner)
+
+Cloudflare dashboard → **Analytics & Logs** → **Web Analytics** → **Add a site** → copy the token → build variable `PUBLIC_CF_BEACON_TOKEN` → redeploy. (On Workers the script isn't injected automatically, so the token is needed.)
+
+Pushing to `main` deploys automatically.
 
 ## Project layout
 
@@ -117,9 +133,12 @@ src/layouts/Base.astro     <head>, SEO, JSON-LD, header, footer
 src/components/            one component per section
 src/scripts/               motion.ts (GSAP, Lenis), main.ts (reveals, counts, parallax), videos.ts
 src/pages/                 index, werk, contact, privacy, 404, robots.txt
-functions/api/contact.ts   Cloudflare Pages Function: Turnstile + Resend
+worker/index.ts            Worker entry: static assets + /api/contact
+worker/contact.ts          contact handler: Turnstile (server-side) + Resend
+wrangler.jsonc             Worker config (name, assets, run_worker_first)
+functions/api/contact.ts   only for Cloudflare Pages; reuses worker/contact.ts
 public/                    fonts, media loops, icons, og.png, _headers, manifest
-scripts/                   compress-videos.sh, shots.mjs, make-icons.mjs
+scripts/                   compress-videos.sh, posters.mjs, shots.mjs, make-icons.mjs
 raw/                       original videos (not in git)
 Logo/                      original logo files and the SVG mark
 ```
@@ -130,9 +149,9 @@ Logo/                      original logo files and the SVG mark
 
 | Page | Mobile perf / a11y / best practices / SEO | Desktop |
 | --- | --- | --- |
-| Home | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| Home (hero option B) | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | /werk | 97 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
-| /contact | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| /contact | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | /privacy | 100 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 
-Mobile LCP: home 0.9 s, /werk 2.3 s, /contact 2.0 s. Measured locally, so expect slightly different numbers on Cloudflare; rerun on the live URL after launch.
+Mobile LCP: home 0.9 s, /werk 2.6 s, /contact 0.9 s. Measured locally, so expect slightly different numbers on Cloudflare; rerun on the live URL.

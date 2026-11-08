@@ -5,11 +5,16 @@ import photo from '../assets/team/broers.png';
 import { t, type Lang } from '../i18n';
 interface Props { lang?: Lang }
 const s = t(Astro.props.lang).about;
+// Displayed at most ~700px wide; offer up to 2x (1400px). Widths above the source are skipped,
+// so dropping in a larger file (>= 1400px) at the same path is enough.
+const widths = [360, 540, 700, 1050, 1400].filter((w) => w <= photo.width);
+if (!widths.includes(photo.width) && photo.width < 1400) widths.push(photo.width);
+if (photo.width < 1400) console.warn(`\n[about] team photo is ${photo.width}px wide; supply >= 1400px for sharp 2x screens.\n`);
 ---
 <section class="section about" id={s.id} aria-labelledby={`${s.id}-title`}>
   <div class="container about__grid">
     <figure class="about__photo" data-reveal>
-      <Image src={photo} alt={s.photoAlt} widths={[480, 720, 980]} sizes="(max-width: 860px) 100vw, 50vw" format="avif" quality={70} />
+      <Image src={photo} alt={s.photoAlt} widths={widths} sizes="(max-width: 860px) calc(100vw - 32px), min(700px, 52vw)" format="avif" quality={70} />
     </figure>
     <div class="about__text">
       <Lines lines={s.title} id={`${s.id}-title`} />

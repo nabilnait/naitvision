@@ -1,8 +1,7 @@
 ---
 import Mark from './Mark.astro';
 import Icon from './Icon.astro';
-import MediaSlot from './MediaSlot.astro';
-import { t, isRealHref, type Lang } from '../i18n';
+import { t, isRealHref, showDetail, type Lang } from '../i18n';
 interface Props {
   lang?: Lang;
   /** A = 'watermark' (default), B = 'video'. Overrides the value in site.ts. */
@@ -11,12 +10,17 @@ interface Props {
 const c = t(Astro.props.lang);
 const h = c.hero;
 const variant = Astro.props.variant ?? h.variant;
-const socials = c.socials;
+const socials = c.socials.filter((s) => showDetail(s.href));
 ---
-<section class:list={['hero', `hero--${variant}`]} aria-labelledby="hero-title">
-  {variant === 'video' && h.showreel.media && (
-    <div class="hero__video" aria-hidden="true">
-      <MediaSlot media={h.showreel.media} webm={h.showreel.webm} alt="" play="inview" eager />
+<section class:list={['hero', `hero--${variant}`, socials.length > 0 && 'hero--socials']} aria-labelledby="hero-title">
+  {variant === 'video' && h.showreel.length > 0 && (
+    <div class="hero__video" aria-hidden="true" style={`--clips:${Math.min(h.showreel.length, 3)}`}>
+      {h.showreel.slice(0, 3).map((m, i) => m.media && (
+        <video class="hero__clip" muted loop playsinline preload="none" poster={`${m.media}.webp`} data-play="inview" data-ambient disablepictureinpicture tabindex="-1">
+          {m.webm && <source src={`${m.media}.webm`} type="video/webm" />}
+          <source src={`${m.media}.mp4`} type="video/mp4" />
+        </video>
+      ))}
     </div>
   )}
   <Mark class="hero__watermark" />
@@ -62,8 +66,13 @@ const socials = c.socials;
     color: var(--text); opacity: var(--opacity-watermark);
     pointer-events: none;
   }
-  .hero__video { position: absolute; inset: 0; z-index: -2; opacity: var(--opacity-hero-video); }
-  .hero__video :global(.media) { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; }
+  .hero__video { position: absolute; inset: 0; z-index: -2; display: grid; grid-template-columns: repeat(var(--clips), minmax(0, 1fr)); opacity: var(--opacity-hero-video); background: var(--bg); }
+  .hero__clip { width: 100%; height: 100%; object-fit: cover; }
+  .hero--video::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(to bottom, rgba(10, 10, 10, .55), rgba(10, 10, 10, 0) 25%, rgba(10, 10, 10, 0) 70%, var(--bg)); }
+  @media (max-width: 760px) {
+    .hero__video { grid-template-columns: 1fr; }
+    .hero__clip:not(:first-child) { display: none; }
+  }
 
   .hero__content { display: grid; gap: var(--space-7); justify-items: center; text-align: center; }
   .hero__words {
@@ -89,6 +98,7 @@ const socials = c.socials;
   a.hero__social:hover { background: var(--text); border-color: var(--text); color: var(--bg); }
   .hero__social.is-todo { border-style: dashed; color: var(--muted); }
 
+  @media (min-width: 901px) { .hero--socials .hero__words { padding-inline: calc(44px + var(--space-6)); } }
   @media (max-width: 900px) {
     .hero__socials { display: none; }
   }

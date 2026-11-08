@@ -1,15 +1,16 @@
 ---
 import Lines from './Lines.astro';
 import Fill from './Fill.astro';
-import { t, type Lang } from '../i18n';
+import { t, present, type Lang } from '../i18n';
 interface Props { lang?: Lang }
 const s = t(Astro.props.lang).faq;
+const items = s.items.filter((it) => present(it.a));
 ---
 <section class="section faq" id={s.id} aria-labelledby={`${s.id}-title`}>
   <div class="container faq__grid">
     <Lines lines={s.title} id={`${s.id}-title`} />
     <div class="faq__list" data-faq>
-      {s.items.map((it, i) => (
+      {items.map((it, i) => (
         <details class="faq__item" open={i === 0} data-reveal>
           <summary class="faq__q">{it.q}<span class="faq__icon" aria-hidden="true"></span></summary>
           <div class="faq__a"><p class="muted"><Fill text={it.a} /></p></div>

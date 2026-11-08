@@ -1,7 +1,11 @@
 ---
-/** Renders text; parts written as [INVULLEN: ...] get the dashed placeholder style. */
+/**
+ * Renders text. Parts written as [INVULLEN: ...] get a dashed outline in dev;
+ * in production they (and their sentence) are left out. See clean() in src/i18n.
+ */
+import { clean } from '../i18n';
 interface Props { text: string }
-const { text } = Astro.props;
+const text = clean(Astro.props.text);
 const parts = text.split(/(\[INVULLEN[^\]]*\])/g).filter(Boolean);
 ---
 {parts.map((p) => (p.startsWith('[INVULLEN') ? <mark class="todo">{p}</mark> : p))}

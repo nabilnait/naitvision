@@ -1,4 +1,4 @@
-# Copy to .dev.vars to test the contact form locally with: npx wrangler pages dev dist
+# Copy to .dev.vars to test the contact form locally with: npm run worker:dev
 RESEND_API_KEY=re_xxx
 # Turnstile test secret that always passes:
 TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA

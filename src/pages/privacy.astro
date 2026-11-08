@@ -1,14 +1,15 @@
 ---
 import Base from '../layouts/Base.astro';
 import Fill from '../components/Fill.astro';
-import { t } from '../i18n';
+import { t, clean, present } from '../i18n';
 const p = t('nl').pages.privacy;
+const sections = p.sections.map((s) => ({ ...s, p: s.p.filter(present) })).filter((s) => s.p.length);
 ---
 <Base title={p.metaTitle} description={p.metaDescription}>
   <article class="legal container">
     <h1 class="legal__title t-display">{p.title}</h1>
-    <p class="muted legal__updated"><Fill text={p.updated} /></p>
-    {p.sections.map((s) => (
+    {present(p.updated) && <p class="muted legal__updated"><Fill text={p.updated} /></p>}
+    {sections.map((s) => (
       <section class="legal__section">
         <h2>{s.h}</h2>
         {s.p.map((para) => <p><Fill text={para} /></p>)}

@@ -3,10 +3,11 @@ import Base from '../layouts/Base.astro';
 import MediaSlot from '../components/MediaSlot.astro';
 import Fill from '../components/Fill.astro';
 import Icon from '../components/Icon.astro';
-import { t, isTodo } from '../i18n';
+import { t, isTodo, present, showTodos } from '../i18n';
 const c = t('nl');
 const w = c.pages.werk;
 const L = w.caseLabels;
+const items = w.items.filter((it) => it.media || showTodos);
 ---
 <Base title={w.metaTitle} description={w.metaDescription}>
   <section class="werk-hero container">
@@ -21,10 +22,10 @@ const L = w.caseLabels;
     </div>
 
     <ul class="grid" role="list" data-grid>
-      {w.items.map((it) => (
+      {items.map((it) => (
         <li class:list={['grid__item', it.ratio === '16/9' && 'grid__item--wide']} data-cats={it.category.join(' ')}>
           {it.media ? (
-            <button class="grid__btn" type="button" data-hover-host data-open={it.full || `${it.media}.mp4`} data-poster={`${it.media}.jpg`} data-title={isTodo(it.title) ? '' : it.title}>
+            <button class="grid__btn" type="button" data-hover-host data-open={it.full || `${it.media}.mp4`} data-poster={`${it.media}.webp`} data-title={isTodo(it.title) ? '' : it.title}>
               <MediaSlot media={it.media} webm={it.webm} alt={it.alt} wide={it.ratio === '16/9'} play="hover" />
               <span class="grid__play" aria-hidden="true"><Icon name="play" size={18} /></span>
               <span class="sr-only">{c.ui.play}: {isTodo(it.title) ? it.alt : it.title}</span>
@@ -32,7 +33,7 @@ const L = w.caseLabels;
           ) : (
             <MediaSlot alt={it.alt} slotLabel={it.alt} wide={it.ratio === '16/9'} />
           )}
-          <p class="grid__title t-label"><Fill text={it.title} /></p>
+          {present(it.title) && <p class="grid__title t-label"><Fill text={it.title} /></p>}
         </li>
       ))}
     </ul>
@@ -48,8 +49,8 @@ const L = w.caseLabels;
           <h3 class="case-detail__name">{cs.name}</h3>
           <dl class="case-detail__facts">
             <div><dt class="t-label muted">{L.sector}</dt><dd>{cs.sector}</dd></div>
-            <div><dt class="t-label muted">{L.delivered}</dt><dd><Fill text={cs.delivered} /></dd></div>
-            {cs.result && <div><dt class="t-label muted">{L.result}</dt><dd><Fill text={cs.result} /></dd></div>}
+            {present(cs.delivered) && <div><dt class="t-label muted">{L.delivered}</dt><dd><Fill text={cs.delivered} /></dd></div>}
+            {present(cs.result) && <div><dt class="t-label muted">{L.result}</dt><dd><Fill text={cs.result} /></dd></div>}
           </dl>
         </li>
       ))}

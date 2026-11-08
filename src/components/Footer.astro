@@ -2,13 +2,14 @@
 import Mark from './Mark.astro';
 import Fill from './Fill.astro';
 import Icon from './Icon.astro';
-import { t, isTodo, isRealHref, type Lang } from '../i18n';
+import { t, isTodo, isRealHref, showDetail, present, type Lang } from '../i18n';
 interface Props { lang?: Lang }
 const c = t(Astro.props.lang);
 const b = c.business;
 const f = c.footer;
 const year = new Date().getFullYear();
 const socials = c.socials.filter((s) => isRealHref(s.href));
+const hasContact = [b.email, b.phone, b.whatsapp].some(showDetail);
 ---
 <footer class="footer">
   <div class="container">
@@ -22,14 +23,16 @@ const socials = c.socials.filter((s) => isRealHref(s.href));
         )}
       </div>
 
-      <div>
-        <h2 class="t-label muted footer__h">{f.contactTitle}</h2>
-        <ul role="list" class="footer__list">
-          <li>{isTodo(b.email) ? <Fill text={b.email} /> : <a href={`mailto:${b.email}`}>{b.email}</a>}</li>
-          <li>{isTodo(b.phone) ? <Fill text={b.phone} /> : <a href={`tel:${b.phone.replace(/\s/g, '')}`}>{b.phone}</a>}</li>
-          <li>{isTodo(b.whatsapp) ? <Fill text={b.whatsapp} /> : <a href={`https://wa.me/${b.whatsapp}`} target="_blank" rel="noopener">{f.whatsappLabel}</a>}</li>
-        </ul>
-      </div>
+      {hasContact && (
+        <div>
+          <h2 class="t-label muted footer__h">{f.contactTitle}</h2>
+          <ul role="list" class="footer__list">
+            {showDetail(b.email) && <li>{isTodo(b.email) ? <Fill text={b.email} /> : <a href={`mailto:${b.email}`}>{b.email}</a>}</li>}
+            {showDetail(b.phone) && <li>{isTodo(b.phone) ? <Fill text={b.phone} /> : <a href={`tel:${b.phone.replace(/\s/g, '')}`}>{b.phone}</a>}</li>}
+            {showDetail(b.whatsapp) && <li>{isTodo(b.whatsapp) ? <Fill text={b.whatsapp} /> : <a href={`https://wa.me/${b.whatsapp}`} target="_blank" rel="noopener">{f.whatsappLabel}</a>}</li>}
+          </ul>
+        </div>
+      )}
 
       <div>
         <h2 class="t-label muted footer__h">{f.regionTitle}</h2>
@@ -48,7 +51,7 @@ const socials = c.socials.filter((s) => isRealHref(s.href));
     </div>
 
     <div class="footer__legal">
-      <p>© {year} {b.name} · {f.vatLabel} <Fill text={b.vat} /> · <Fill text={b.address} /></p>
+      <p>© {year} {b.name}{present(b.vat) && <> · {f.vatLabel} <Fill text={b.vat} /></>}{present(b.address) && <> · <Fill text={b.address} /></>}</p>
     </div>
   </div>
 </footer>

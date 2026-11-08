@@ -8,3 +8,4 @@ raw/
 test-results/
 playwright-report/
 shots/
+.wrangler/

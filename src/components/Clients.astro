@@ -1,19 +1,22 @@
 ---
 import Marquee from './Marquee.astro';
-import { t, type Lang } from '../i18n';
+import { t, showTodos, type Lang } from '../i18n';
 interface Props { lang?: Lang }
 const s = t(Astro.props.lang).clients;
-const names = s.items.length ? s.items.map((i) => i.name) : Array.from({ length: 6 }, () => s.placeholder);
-const isPlaceholder = !s.items.length;
+const MIN_CLIENTS = 4;
+const real = s.items.length >= MIN_CLIENTS;
+const names = real ? s.items.map((i) => i.name) : Array.from({ length: 6 }, () => s.placeholder);
+const isPlaceholder = !real;
+const show = real || showTodos;
 ---
-<section class="clients" aria-labelledby="clients-title">
+{show && <section class="clients" aria-labelledby="clients-title">
   <div class="container">
     <h2 id="clients-title" class="t-label muted clients__label">{s.label}</h2>
   </div>
   <div class:list={['clients__band', isPlaceholder && 'is-todo']}>
     <Marquee items={names} muted speed={50} />
   </div>
-</section>
+</section>}
 <style>
   .clients { padding-block: var(--space-8); border-block: 1px solid var(--line); }
   .clients__label { margin-bottom: var(--space-5); }

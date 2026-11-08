@@ -2,7 +2,7 @@
 # Turns every video in raw/ into a web loop + poster in public/media/.
 #   - 8 seconds (or shorter if the clip is shorter), starting at START seconds
 #   - no audio, max 720 px on the short side (9:16 -> 720x1280)
-#   - H.264 MP4 (faststart) + VP9 WebM + WebP poster
+#   - H.264 MP4 (faststart) + VP9 WebM + first-frame poster as WebP and AVIF
 # Usage:
 #   scripts/compress-videos.sh                 # all files in raw/
 #   scripts/compress-videos.sh raw/clip.mp4    # one file
@@ -40,10 +40,11 @@ for src in "${files[@]}"; do
     -an -vf "$vf" -c:v libvpx-vp9 -b:v 0 -crf $((CRF + 8)) -row-mt 1 -deadline good -cpu-used 4 \
     "$OUT/$base.webm"
 
-  ffmpeg -hide_banner -loglevel error -y -ss "$START" -i "$src" -frames:v 1 \
-    -vf "$vf" -c:v libwebp -quality 70 "$OUT/$base.webp"
-  # JPEG poster too: the site uses <media>.jpg as poster
-  ffmpeg -hide_banner -loglevel error -y -ss "$START" -i "$src" -frames:v 1 -vf "$vf" -q:v 5 "$OUT/$base.jpg"
+  # poster = the exact first frame of the loop, written as WebP + AVIF by scripts/posters.mjs
+  frame="$(mktemp -t poster).png"
+  ffmpeg -hide_banner -loglevel error -y -ss "$START" -i "$src" -frames:v 1 -vf "$vf" "$frame"
+  node scripts/posters.mjs "$frame" "$OUT/$base"
+  rm -f "$frame"
 
   size=$(du -k "$OUT/$base.mp4" | cut -f1)
   [ "$size" -gt 3072 ] && echo "   note: $base.mp4 is ${size} KB (target < 3 MB). Try CRF=28 or a shorter DURATION."

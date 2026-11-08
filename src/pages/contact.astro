@@ -2,14 +2,18 @@
 import Base from '../layouts/Base.astro';
 import Fill from '../components/Fill.astro';
 import Icon from '../components/Icon.astro';
-import { t, isTodo } from '../i18n';
+import { t, isTodo, showDetail } from '../i18n';
 const c = t('nl');
 const p = c.pages.contact;
 const b = c.business;
 const F = p.fields;
-// Cloudflare's always-passes test key is used until PUBLIC_TURNSTILE_SITE_KEY is set.
-const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA';
+// Real Turnstile site key from the build environment. Cloudflare's always-passes test key
+// is only used in local dev; a production build without a key disables the form.
+const realKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
+const siteKey = realKey || (import.meta.env.DEV ? '1x00000000000000000000AA' : '');
+if (!siteKey) console.warn('\n[contact] PUBLIC_TURNSTILE_SITE_KEY is not set: the contact form is disabled in this build.\n');
 const msgs = JSON.stringify(p.errors);
+const hasDirect = [b.whatsapp, b.email, b.phone].some(showDetail);
 ---
 <Base title={p.metaTitle} description={p.metaDescription}>
   <section class="contact container">
@@ -19,7 +23,8 @@ const msgs = JSON.stringify(p.errors);
     <p class="t-lead contact__intro" data-reveal>{p.intro}</p>
 
     <div class="contact__grid">
-      <form class="form" novalidate data-form data-msgs={msgs}>
+      {!siteKey && <p class="form__off" role="status">{p.unavailable}</p>}
+      <form class="form" novalidate data-form data-msgs={msgs} hidden={!siteKey}>
         <div class="form__row">
           <div class="field"><label for="f-name">{F.name}</label><input id="f-name" name="name" autocomplete="name" required /><p class="field__err" id="f-name-err" hidden></p></div>
           <div class="field"><label for="f-company">{F.company}</label><input id="f-company" name="company" autocomplete="organization" required /><p class="field__err" id="f-company-err" hidden></p></div>
@@ -49,24 +54,24 @@ const msgs = JSON.stringify(p.errors);
         </div>
       </form>
 
-      <aside class="direct" aria-labelledby="direct-title">
-        <h2 id="direct-title" class="t-label muted">{p.directTitle}</h2>
-        <ul role="list" class="direct__list">
-          <li>{isTodo(b.whatsapp)
+      <aside class="direct" aria-labelledby={hasDirect ? 'direct-title' : undefined} aria-label={hasDirect ? undefined : 'Regio'}>
+        {hasDirect && <h2 id="direct-title" class="t-label muted">{p.directTitle}</h2>}
+        {hasDirect && <ul role="list" class="direct__list">
+          {showDetail(b.whatsapp) && <li>{isTodo(b.whatsapp)
             ? <span class="direct__item"><Icon name="message" size={20} /><span><span class="direct__k">{p.directWhatsapp}</span><Fill text={b.whatsapp} /></span></span>
-            : <a class="direct__item" href={`https://wa.me/${b.whatsapp}`} target="_blank" rel="noopener"><Icon name="message" size={20} /><span><span class="direct__k">{p.directWhatsapp}</span>+{b.whatsapp}</span></a>}</li>
-          <li>{isTodo(b.email)
+            : <a class="direct__item" href={`https://wa.me/${b.whatsapp}`} target="_blank" rel="noopener"><Icon name="message" size={20} /><span><span class="direct__k">{p.directWhatsapp}</span>+{b.whatsapp}</span></a>}</li>}
+          {showDetail(b.email) && <li>{isTodo(b.email)
             ? <span class="direct__item"><Icon name="mail" size={20} /><span><span class="direct__k">{p.directEmail}</span><Fill text={b.email} /></span></span>
-            : <a class="direct__item" href={`mailto:${b.email}`}><Icon name="mail" size={20} /><span><span class="direct__k">{p.directEmail}</span>{b.email}</span></a>}</li>
-          <li>{isTodo(b.phone)
+            : <a class="direct__item" href={`mailto:${b.email}`}><Icon name="mail" size={20} /><span><span class="direct__k">{p.directEmail}</span>{b.email}</span></a>}</li>}
+          {showDetail(b.phone) && <li>{isTodo(b.phone)
             ? <span class="direct__item"><Icon name="phone" size={20} /><span><span class="direct__k">{p.directPhone}</span><Fill text={b.phone} /></span></span>
-            : <a class="direct__item" href={`tel:${b.phone.replace(/\s/g, '')}`}><Icon name="phone" size={20} /><span><span class="direct__k">{p.directPhone}</span>{b.phone}</span></a>}</li>
-        </ul>
+            : <a class="direct__item" href={`tel:${b.phone.replace(/\s/g, '')}`}><Icon name="phone" size={20} /><span><span class="direct__k">{p.directPhone}</span>{b.phone}</span></a>}</li>}
+        </ul>}
         <p class="muted direct__region">{b.region}</p>
       </aside>
     </div>
   </section>
-  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  {siteKey && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
 </Base>
 
 <style>
@@ -101,6 +106,8 @@ const msgs = JSON.stringify(p.errors);
   .form__foot { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
   .form__submit { min-width: 180px; }
   .form__status { font-size: var(--fs-small); color: var(--danger); }
+  .form__off { padding: var(--space-5); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); align-self: start; }
+  .form[hidden] { display: none; }
   .form__success { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-5); border: 1px solid var(--success); border-radius: var(--radius-sm); color: var(--success); font-size: var(--fs-lead); }
   .form__success[hidden] { display: none; }
   .form.is-sent > :not(.form__success) { display: none; }

@@ -7,7 +7,7 @@
  *
  * Media: `media` is the base path of a loop in /public/media without extension.
  * The site loads `<media>.mp4` (and `<media>.webm` when `webm: true`) plus the
- * poster `<media>.jpg`. Add new loops with `scripts/compress-videos.sh`.
+ * first-frame poster `<media>.webp` (an .avif is made too). Add new loops with `scripts/compress-videos.sh`.
  */
 
 export type Media = {
@@ -75,8 +75,13 @@ const nl = {
 
   hero: {
     /** 'watermark' = A (black + logo watermark), 'video' = B (dimmed showreel behind it) */
-    variant: 'watermark' as 'watermark' | 'video',
-    showreel: { media: '/media/reel-drone', alt: '' } as Media,
+    variant: 'video' as 'watermark' | 'video',
+    /** Option B: up to three 9:16 loops side by side behind the words (one on phones), dimmed to 35%. */
+    showreel: [
+      { media: '/media/reel-barber', alt: '' },
+      { media: '/media/reel-stadion', alt: '' },
+      { media: '/media/reel-wellness', alt: '' },
+    ] as Media[],
     words: ['Content', 'Foto', 'Video'],
     h1: 'Short-form content en beeld voor lokale ondernemers in Limburg.',
     scroll: 'Scroll',
@@ -219,9 +224,9 @@ const nl = {
 
   about: {
     id: 'over-ons',
-    title: ['Twee broers.', 'Eén blik.'],
+    title: ['Twee broers.', 'Één blik.'],
     text: [
-      'Naitvision startte in 2022. Nait is onze familienaam, en ja, dat klinkt als knight. Vandaar het schaakpaard in ons logo.',
+      'Naitvision startte in 2022. Nait is onze familienaam, en ja, dat klinkt als knight. Ons logo houdt het eenvoudig: een N en een V, voor Nait en Vision.',
       'Wij filmen, monteren en leveren zelf. Je hebt één vast aanspreekpunt, geen tussenpersonen.',
     ],
     photoAlt: 'De twee broers van Naitvision aan het werk, met een drone en een camera op gimbal',
@@ -314,6 +319,7 @@ const nl = {
       submit: 'Verstuur',
       sending: 'Bezig met versturen',
       success: 'Bedankt. Je bericht is verstuurd en we nemen contact met je op.',
+      unavailable: 'Het formulier is tijdelijk niet beschikbaar. Contacteer ons rechtstreeks via de gegevens hiernaast.',
       errors: {
         required: 'Vul dit veld in.',
         email: 'Dit e-mailadres klopt niet. Controleer of er een @ en een domein in staan.',
