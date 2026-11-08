@@ -1,0 +1,33 @@
+---
+import SectionHead from './SectionHead.astro';
+import { t, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const s = t(Astro.props.lang).process;
+---
+<section class="section process" id={s.id} aria-labelledby={`${s.id}-title`}>
+  <div class="container">
+    <SectionHead title={s.title} lead={s.lead} id={`${s.id}-title`} />
+    <ol class="steps" role="list">
+      {s.steps.map((st, i) => (
+        <li class="step">
+          <span class="step__num" data-reveal="lines" aria-hidden="true"><span class="line"><span>{i + 1}</span></span></span>
+          <h3 class="step__title" data-reveal data-delay="0.1"><span class="sr-only">Stap {i + 1}: </span>{st.title}</h3>
+          <p class="step__text muted" data-reveal data-delay="0.18">{st.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+<style>
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-6); margin-top: var(--space-8); padding: 0; }
+  .step__num { display: block; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-numeral); line-height: .85; letter-spacing: -0.04em; color: var(--muted); }
+  .step__title { margin-top: var(--space-5); font-weight: 500; font-size: var(--fs-step); line-height: 1.2; letter-spacing: -0.01em; }
+  .step__text { margin-top: var(--space-3); max-width: 34ch; }
+  @media (max-width: 960px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-8); } }
+  @media (max-width: 560px) {
+    .steps { grid-template-columns: 1fr; row-gap: var(--space-7); }
+    .step { display: grid; grid-template-columns: 4.25rem 1fr; column-gap: var(--space-4); align-items: start; }
+    .step__num { font-size: 5rem; grid-row: span 2; }
+    .step__title { margin-top: var(--space-2); }
+  }
+</style>

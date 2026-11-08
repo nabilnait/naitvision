@@ -1,0 +1,8 @@
+---
+/** The NV mark, drawn from Logo/NV.png: two shapes cut at 60°. Inherits currentColor. */
+interface Props { class?: string; title?: string }
+const { class: cls, title } = Astro.props;
+---
+<svg class={cls} viewBox="0 0 555 320" fill="currentColor" role={title ? 'img' : undefined} aria-hidden={title ? undefined : 'true'} aria-label={title}>
+  <path d="M0 320 185 0 278 158 185 320ZM370 0H555L370 320 278 158Z" />
+</svg>

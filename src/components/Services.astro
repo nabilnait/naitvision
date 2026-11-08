@@ -1,0 +1,39 @@
+---
+import SectionHead from './SectionHead.astro';
+import Icon from './Icon.astro';
+import { t, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const s = t(Astro.props.lang).services;
+---
+<section class="section services" id={s.id} aria-labelledby={`${s.id}-title`}>
+  <div class="container">
+    <SectionHead title={s.title} lead={s.lead} id={`${s.id}-title`} />
+    <ul class="cards" role="list">
+      {s.items.map((it, i) => (
+        <li class:list={['card', it.wide && 'card--wide']} data-reveal data-delay={String((i % 3) * 0.08)}>
+          <Icon name={it.icon} size={28} class="card__icon" />
+          <span class="card__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="card__title">{it.title}</h3>
+          <p class="card__text muted">{it.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+<style>
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); margin-top: var(--space-8); padding: 0; }
+  .card {
+    position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 300px;
+    padding: var(--space-6); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm);
+    transition: border-color .5s var(--ease), transform .5s var(--ease);
+  }
+  .card:hover { border-color: var(--text); transform: translateY(-4px); }
+  .card--wide { grid-column: span 2; }
+  .card :global(.card__icon) { color: var(--text); }
+  .card__num { position: absolute; top: var(--space-4); right: var(--space-5); font-family: var(--font-display); font-weight: 600; font-size: clamp(5rem, 8vw, 7.5rem); line-height: 1; color: var(--text); opacity: var(--opacity-numeral-ghost); pointer-events: none; }
+  .card__title { margin-top: auto; padding-top: var(--space-8); font-family: var(--font-condensed); font-weight: 600; font-size: var(--fs-card); line-height: 1.05; letter-spacing: .02em; text-transform: uppercase; }
+  .card--wide .card__title { font-size: clamp(2rem, 3.2vw, 2.75rem); }
+  .card__text { margin-top: var(--space-3); max-width: 44ch; }
+  @media (max-width: 960px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } .card--wide { grid-column: auto; } .card { min-height: 240px; } }
+</style>

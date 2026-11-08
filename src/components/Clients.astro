@@ -1,0 +1,24 @@
+---
+import Marquee from './Marquee.astro';
+import { t, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const s = t(Astro.props.lang).clients;
+const names = s.items.length ? s.items.map((i) => i.name) : Array.from({ length: 6 }, () => s.placeholder);
+const isPlaceholder = !s.items.length;
+---
+<section class="clients" aria-labelledby="clients-title">
+  <div class="container">
+    <h2 id="clients-title" class="t-label muted clients__label">{s.label}</h2>
+  </div>
+  <div class:list={['clients__band', isPlaceholder && 'is-todo']}>
+    <Marquee items={names} muted speed={50} />
+  </div>
+</section>
+<style>
+  .clients { padding-block: var(--space-8); border-block: 1px solid var(--line); }
+  .clients__label { margin-bottom: var(--space-5); }
+  .clients__band :global(.marquee__item) { transition: color .4s var(--ease); }
+  .clients__band :global(.marquee__item:hover) { color: var(--text); }
+  .clients__band.is-todo :global(.marquee__item) { font-size: clamp(1.25rem, 2vw, 1.75rem); border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); padding: .3em .5em; margin-right: var(--space-5); }
+  .clients__band.is-todo :global(.marquee__item::after) { display: none; }
+</style>

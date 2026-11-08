@@ -1,0 +1,69 @@
+/* Naitvision design tokens. Source: the Naitvision design system (tokens.json).
+   Strictly black and white; the client footage brings the colour. */
+:root {
+  color-scheme: dark;
+
+  /* colour */
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --placeholder: #1c1c1b;
+  --text: #f1f0ea;
+  --muted: #8a8a85;
+  --line: rgba(241, 240, 234, 0.15);
+  --line-strong: rgba(241, 240, 234, 0.4);
+  --success: #6fc2c9;
+  --danger: #e8735a;
+
+  /* type families */
+  --font-display: 'Tomorrow', 'Arial Black', system-ui, sans-serif;
+  --font-condensed: 'Barlow Condensed', 'Arial Narrow', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* fluid type (1440px values in the design system) */
+  --fs-numeral: clamp(6rem, 14vw, 13rem);
+  --fs-stat: clamp(3.5rem, 7vw, 6rem);
+  --fs-section: clamp(2.5rem, 5vw, 4.5rem);
+  --fs-hero: clamp(2rem, 3.9vw, 3.5rem);
+  --fs-display-sm: clamp(1.375rem, 2vw, 1.75rem);
+  --fs-marquee: clamp(1.75rem, 3vw, 2.75rem);
+  --fs-card: clamp(1.5rem, 2vw, 1.75rem);
+  --fs-label: 0.8125rem;
+  --fs-step: clamp(1.5rem, 2.2vw, 2rem);
+  --fs-lead: clamp(1.0625rem, 1.25vw, 1.125rem);
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+
+  /* spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 160px;
+  --gutter: clamp(16px, 4vw, 48px);
+  --section-pad: clamp(96px, 11vw, 160px);
+
+  /* radius */
+  --radius-0: 0;
+  --radius-sm: 4px;
+  --radius-pill: 999px;
+
+  /* opacity */
+  --opacity-watermark: 0.06;
+  --opacity-hero-video: 0.35;
+  --opacity-side-card: 0.55;
+  --opacity-numeral-ghost: 0.12;
+
+  /* widths */
+  --measure-lead: 46ch;
+  --measure-body: 65ch;
+  --container: 1440px;
+
+  /* motion */
+  --ease: cubic-bezier(0.215, 0.61, 0.355, 1); /* power3.out */
+  --dur: 0.8s;
+}

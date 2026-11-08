@@ -1,0 +1,14 @@
+---
+import Lines from './Lines.astro';
+interface Props { title: string[]; lead?: string; id?: string; eyebrow?: string }
+const { title, lead, id, eyebrow } = Astro.props;
+---
+<div class="head">
+  <div>
+    {eyebrow && <p class="t-label muted head__eyebrow" data-reveal>{eyebrow}</p>}
+    <Lines lines={title} id={id} />
+  </div>
+  {lead && <p class="t-lead head__lead" data-reveal data-delay="0.15">{lead}</p>}
+  <slot />
+</div>
+<style>.head__eyebrow { margin-bottom: var(--space-5); }</style>

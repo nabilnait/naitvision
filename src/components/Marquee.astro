@@ -1,0 +1,28 @@
+---
+/** Endless band of words with small dots between them; pauses on hover. */
+interface Props { items: string[]; reverse?: boolean; muted?: boolean; speed?: number; label?: string; class?: string }
+const { items, reverse = false, muted = false, speed = 40, label, class: cls } = Astro.props;
+---
+<div class:list={['marquee', reverse && 'marquee--reverse', muted && 'marquee--muted', cls]} style={`--speed:${speed}s`} role={label ? 'region' : undefined} aria-label={label}>
+  <div class="marquee__track">
+    <ul class="marquee__group" role="list">{items.map((i) => <li class="marquee__item">{i}</li>)}</ul>
+    <ul class="marquee__group" role="list" aria-hidden="true">{items.map((i) => <li class="marquee__item">{i}</li>)}</ul>
+  </div>
+</div>
+
+<style>
+  .marquee { overflow: hidden; padding-block: var(--space-4); user-select: none; }
+  .marquee__track { display: flex; width: max-content; animation: scroll var(--speed) linear infinite; }
+  .marquee--reverse .marquee__track { animation-direction: reverse; }
+  .marquee:hover .marquee__track { animation-play-state: paused; }
+  .marquee__group { display: flex; margin: 0; padding: 0; list-style: none; }
+  .marquee__item {
+    display: inline-flex; align-items: center; white-space: nowrap;
+    font-family: var(--font-condensed); font-weight: 600; font-size: var(--fs-marquee); line-height: 1; text-transform: uppercase; letter-spacing: .01em;
+  }
+  .marquee__item::after { content: ''; width: 7px; height: 7px; margin-inline: .7em; border-radius: var(--radius-pill); background: var(--muted); }
+  .marquee--muted .marquee__item { color: var(--muted); }
+  .marquee--muted .marquee__item::after { background: var(--line-strong); }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .marquee__track { animation: none; } }
+</style>

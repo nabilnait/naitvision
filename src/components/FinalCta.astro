@@ -1,0 +1,71 @@
+---
+/**
+ * "JOUW ZET." builds up as a stacked trail while scrolling: five copies, the upper ones
+ * fainter and less complete, the bottom one full and sharp. A quiet nod to chess.
+ */
+import Icon from './Icon.astro';
+import { t, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const s = t(Astro.props.lang).finalCta;
+const chars = Array.from(s.trail);
+const ROWS = 5;
+---
+<section class="final" aria-labelledby="final-title" data-final>
+  <div class="final__sticky">
+    <div class="container final__inner">
+      <div class="final__trail">
+        {Array.from({ length: ROWS }, (_, r) => {
+          const Tag = r === ROWS - 1 ? 'h2' : 'p';
+          return (
+            <Tag class="final__row" id={r === ROWS - 1 ? 'final-title' : undefined} aria-hidden={r === ROWS - 1 ? undefined : 'true'} data-row={r} aria-label={r === ROWS - 1 ? s.trail : undefined}>
+              {chars.map((ch) => <span class="final__ch" aria-hidden="true">{ch === ' ' ? ' ' : ch}</span>)}
+            </Tag>
+          );
+        })}
+      </div>
+      <div class="final__row2">
+        <p class="final__line">{s.line}</p>
+        <a class="btn btn--solid final__btn" href={s.button.href}>{s.button.label} <Icon name="arrow" size={16} /></a>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+  .final { position: relative; height: 240vh; border-top: 1px solid var(--line); }
+  .final__sticky { position: sticky; top: 0; height: 100vh; height: 100svh; display: flex; align-items: center; overflow: hidden; }
+  .final__inner { display: grid; gap: var(--space-8); }
+  .final__trail { display: grid; }
+  .final__row { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(3rem, 10.5vw, 9.5rem); line-height: .88; letter-spacing: -0.03em; text-transform: uppercase; white-space: nowrap; }
+  .final__row[data-row='0'] { opacity: .08; filter: blur(5px); }
+  .final__row[data-row='1'] { opacity: .16; filter: blur(3px); }
+  .final__row[data-row='2'] { opacity: .3; filter: blur(1.5px); }
+  .final__row[data-row='3'] { opacity: .55; filter: blur(.5px); }
+  .final__ch { display: inline-block; }
+  .final__row2 { display: flex; justify-content: space-between; align-items: center; gap: var(--space-5); flex-wrap: wrap; padding-top: var(--space-6); border-top: 1px solid var(--line); }
+  .final__line { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-display-sm); line-height: 1.1; text-transform: uppercase; }
+  :global(html.reduced) .final { height: auto; }
+  :global(html.reduced) .final__sticky { position: static; height: auto; padding-block: var(--section-pad); }
+  @media (max-width: 640px) { .final__row { font-size: 15vw; } }
+  @media (max-height: 640px) { .final__row { font-size: clamp(2.5rem, 13vh, 9.5rem); } }
+</style>
+<script>
+  import { ScrollTrigger, reduced } from '../scripts/motion';
+  const root = document.querySelector<HTMLElement>('[data-final]');
+  if (root && !reduced) {
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('[data-row]'));
+    const sets = rows.map((r) => Array.from(r.querySelectorAll<HTMLElement>('.final__ch')));
+    const n = sets[0].length;
+    const R = rows.length;
+    const paint = (p: number) => {
+      sets.forEach((chs, r) => {
+        // upper rows finish shorter; the bottom row ends complete
+        const share = (r + 1) / R;
+        const local = Math.min(1, Math.max(0, (p - r * 0.06) / 0.7));
+        const shown = Math.round(n * share * local);
+        chs.forEach((ch, i) => (ch.style.opacity = i < shown ? '1' : '0'));
+      });
+    };
+    paint(0);
+    ScrollTrigger.create({ trigger: root, start: 'top top', end: 'bottom bottom', scrub: true, onUpdate: (st) => paint(st.progress) });
+  }
+</script>

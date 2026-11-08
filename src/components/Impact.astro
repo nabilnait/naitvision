@@ -1,0 +1,48 @@
+---
+import SectionHead from './SectionHead.astro';
+import MediaSlot from './MediaSlot.astro';
+import Fill from './Fill.astro';
+import { t, isTodo, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const s = t(Astro.props.lang).impact;
+---
+<section class="section impact" id={s.id} aria-labelledby={`${s.id}-title`}>
+  <div class="container">
+    <SectionHead title={s.title} lead={s.lead} id={`${s.id}-title`} />
+    <dl class="impact__stats">
+      {s.stats.map((st, i) => (
+        <div class="impact__stat" data-reveal data-delay={String(i * 0.1)}>
+          <dt class="t-label muted impact__label">{st.label}</dt>
+          <dd class="impact__value">
+            {isTodo(st.value)
+              ? <Fill text={st.value} />
+              : <span data-count={st.count} data-count-from={st.count && st.count > 1900 ? st.count - 22 : 0} data-suffix={st.suffix}>{st.value}</span>}
+          </dd>
+        </div>
+      ))}
+    </dl>
+    <div class="impact__media">
+      {s.media.map((m, i) => (
+        <div class="impact__frame" data-reveal data-delay={String(i * 0.1)}>
+          <div class="impact__inner" data-parallax="6">
+            <MediaSlot media={m.media} webm={m.webm} alt={m.alt} slotLabel={m.slotLabel} wide />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+<style>
+  .impact__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6); margin: var(--space-8) 0 0; }
+  .impact__stat { display: flex; flex-direction: column-reverse; gap: var(--space-3); border-top: 1px solid var(--line); padding-top: var(--space-5); }
+  .impact__value { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: var(--fs-stat); line-height: .9; letter-spacing: -0.03em; text-transform: uppercase; font-variant-numeric: tabular-nums; }
+  .impact__value :global(.todo) { font-family: var(--font-body); font-size: var(--fs-small); letter-spacing: 0; text-transform: none; vertical-align: middle; }
+  .impact__media { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); margin-top: var(--space-8); }
+  .impact__frame { overflow: hidden; aspect-ratio: 16 / 9; }
+  .impact__inner { height: 116%; margin-top: -8%; }
+  .impact__inner :global(.media) { height: 100%; aspect-ratio: auto; }
+  @media (max-width: 760px) {
+    .impact__stats { grid-template-columns: 1fr; gap: var(--space-5); }
+    .impact__media { grid-template-columns: 1fr; }
+  }
+</style>

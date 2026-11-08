@@ -1,0 +1,142 @@
+---
+/** 9:16 reels: the centre card upright and large, neighbours smaller, tilted and running off-screen. */
+import MediaSlot from './MediaSlot.astro';
+import Fill from './Fill.astro';
+import Icon from './Icon.astro';
+import { t, type Lang } from '../i18n';
+interface Props { reels: { media?: string; webm?: boolean; alt: string; label: string }[]; lang?: Lang }
+const { reels } = Astro.props;
+const c = t(Astro.props.lang);
+---
+<div class="reels" data-reels>
+  <div class="reels__stage" role="region" aria-roledescription="carrousel" aria-label="Reels" tabindex="0" data-stage>
+    {reels.map((r, i) => (
+      <figure class="reels__card" data-card={i} role="group" aria-roledescription="slide" aria-label={`${i + 1} / ${reels.length}`}>
+        <MediaSlot media={r.media} webm={r.webm} alt={r.alt} play="manual" />
+        <figcaption class="sr-only" data-cap><Fill text={r.label} /></figcaption>
+      </figure>
+    ))}
+  </div>
+  <div class="reels__bar">
+    <button class="reels__arrow" type="button" data-prev aria-label={c.ui.prev}><Icon name="arrowLeft" size={20} /></button>
+    <p class="reels__label t-label" aria-live="polite" data-label><Fill text={reels[0]?.label ?? ''} /></p>
+    <button class="reels__arrow" type="button" data-next aria-label={c.ui.next}><Icon name="arrowRight" size={20} /></button>
+  </div>
+</div>
+
+<style>
+  .reels { --card-w: clamp(220px, 21vw, 300px); position: relative; }
+  .reels__stage {
+    position: relative; height: calc(var(--card-w) * 16 / 9 + 48px);
+    perspective: 1400px; touch-action: pan-y; cursor: grab; outline-offset: 8px;
+    margin-inline: calc(-1 * var(--gutter));
+    overflow: hidden;
+  }
+  .reels__stage.is-dragging { cursor: grabbing; }
+  .reels__card {
+    position: absolute; top: 24px; left: 50%; width: var(--card-w); margin: 0 0 0 calc(var(--card-w) / -2);
+    transform-style: preserve-3d; will-change: transform, opacity;
+    transition: transform 0.9s var(--ease), opacity 0.9s var(--ease);
+  }
+  .reels__card :global(.media) { width: 100%; }
+  .reels__card.is-side { cursor: pointer; }
+  .reels__bar { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: var(--space-5); max-width: 560px; margin: var(--space-5) auto 0; }
+  .reels__label { text-align: center; color: var(--muted); min-height: 1.2em; }
+  .reels__arrow { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); background: transparent; cursor: pointer; transition: background-color .4s var(--ease), color .4s var(--ease), border-color .4s var(--ease); }
+  .reels__arrow:hover { background: var(--text); border-color: var(--text); color: var(--bg); }
+  @media (max-width: 640px) { .reels { --card-w: 58vw; } }
+  @media (prefers-reduced-motion: reduce) { .reels__card { transition: opacity .4s linear; } }
+</style>
+
+<script>
+  import { reduced } from '../scripts/motion';
+
+  const X = [0, 0.95, 1.75, 2.45];
+  const S = [1, 0.8, 0.64, 0.52];
+  const R = [0, 8, 12, 15];
+  const RY = [0, 16, 22, 26];
+  const O = [1, 0.55, 0.28, 0];
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-reels]')) {
+    const stage = root.querySelector<HTMLElement>('[data-stage]')!;
+    const cards = Array.from(root.querySelectorAll<HTMLElement>('[data-card]'));
+    const label = root.querySelector<HTMLElement>('[data-label]')!;
+    const n = cards.length;
+    let current = 0;
+    let timer: number | undefined;
+    let inView = false;
+    let hover = false;
+
+    const offset = (i: number) => {
+      let d = i - current;
+      if (d > n / 2) d -= n;
+      if (d < -n / 2) d += n;
+      return d;
+    };
+
+    function render() {
+      const w = cards[0].offsetWidth;
+      cards.forEach((card, i) => {
+        const d = offset(i);
+        const a = Math.min(Math.abs(d), 3);
+        const s = Math.sign(d);
+        card.style.transform = `translateX(${s * X[a] * w}px) scale(${S[a]}) rotate(${s * R[a]}deg) rotateY(${-s * RY[a]}deg)`;
+        card.style.opacity = String(Math.abs(d) > 3 ? 0 : O[a]);
+        card.style.zIndex = String(10 - a);
+        card.style.visibility = Math.abs(d) > 3 ? 'hidden' : 'visible';
+        card.classList.toggle('is-side', d !== 0);
+        card.setAttribute('aria-hidden', d === 0 ? 'false' : 'true');
+        const v = card.querySelector('video');
+        if (v) {
+          if (d === 0 && inView) {
+            if (v.preload === 'none') v.preload = 'auto';
+            v.play().catch(() => {});
+          } else v.pause();
+          if (Math.abs(d) <= 1 && v.preload === 'none') v.preload = 'metadata';
+        }
+      });
+      label.innerHTML = cards[current].querySelector('[data-cap]')!.innerHTML;
+    }
+
+    const go = (i: number) => {
+      current = (i + n) % n;
+      render();
+      restart();
+    };
+    const next = () => go(current + 1);
+    const prev = () => go(current - 1);
+
+    function restart() {
+      window.clearInterval(timer);
+      if (reduced || !inView || hover) return;
+      timer = window.setInterval(next, 5000);
+    }
+
+    root.querySelector('[data-next]')!.addEventListener('click', next);
+    root.querySelector('[data-prev]')!.addEventListener('click', prev);
+    cards.forEach((card, i) => card.addEventListener('click', () => offset(i) !== 0 && go(i)));
+    stage.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    });
+    root.addEventListener('mouseenter', () => { hover = true; restart(); });
+    root.addEventListener('mouseleave', () => { hover = false; restart(); });
+    root.addEventListener('focusin', () => { hover = true; restart(); });
+    root.addEventListener('focusout', () => { hover = false; restart(); });
+
+    let startX = 0, dragging = false, moved = false;
+    stage.addEventListener('pointerdown', (e) => { startX = e.clientX; dragging = true; moved = false; stage.classList.add('is-dragging'); });
+    window.addEventListener('pointerup', (e) => {
+      if (!dragging) return;
+      dragging = false; stage.classList.remove('is-dragging');
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > 50) { moved = true; dx < 0 ? next() : prev(); }
+    });
+    stage.addEventListener('click', (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    stage.addEventListener('dragstart', (e) => e.preventDefault());
+
+    new IntersectionObserver(([e]) => { inView = e.isIntersecting; render(); restart(); }, { threshold: 0.3 }).observe(stage);
+    window.addEventListener('resize', render);
+    render();
+  }
+</script>

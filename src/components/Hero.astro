@@ -1,0 +1,115 @@
+---
+import Mark from './Mark.astro';
+import Icon from './Icon.astro';
+import MediaSlot from './MediaSlot.astro';
+import { t, isRealHref, type Lang } from '../i18n';
+interface Props {
+  lang?: Lang;
+  /** A = 'watermark' (default), B = 'video'. Overrides the value in site.ts. */
+  variant?: 'watermark' | 'video';
+}
+const c = t(Astro.props.lang);
+const h = c.hero;
+const variant = Astro.props.variant ?? h.variant;
+const socials = c.socials;
+---
+<section class:list={['hero', `hero--${variant}`]} aria-labelledby="hero-title">
+  {variant === 'video' && h.showreel.media && (
+    <div class="hero__video" aria-hidden="true">
+      <MediaSlot media={h.showreel.media} webm={h.showreel.webm} alt="" play="inview" eager />
+    </div>
+  )}
+  <Mark class="hero__watermark" />
+
+  <div class="hero__content container">
+    <p class="hero__words" aria-hidden="true">
+      {h.words.map((w, i) => (
+        <>
+          {i > 0 && <span class="hero__dot" />}
+          <span class="hero__word"><span>{w}</span></span>
+        </>
+      ))}
+    </p>
+    <h1 id="hero-title" class="hero__h1"><span class="sr-only">{h.words.join(', ')}. </span>{h.h1}</h1>
+  </div>
+
+  <a class="hero__scroll" href="#aanbod">
+    <span class="hero__mouse" aria-hidden="true"><span></span></span>
+    <span class="t-label">{h.scroll}</span>
+  </a>
+
+  {socials.length > 0 && (
+    <ul class="hero__socials" role="list" aria-label={c.ui.socialsLabel}>
+      {socials.map((s) => (
+        <li>{isRealHref(s.href)
+          ? <a class="hero__social" href={s.href} target="_blank" rel="noopener" aria-label={s.name}><Icon name={s.icon} size={20} /></a>
+          : <span class="hero__social is-todo" title={s.href} aria-label={`${s.name}: ${s.href}`}><Icon name={s.icon} size={20} /></span>}</li>
+      ))}
+    </ul>
+  )}
+</section>
+
+<style>
+  .hero {
+    position: relative; isolation: isolate; overflow: hidden;
+    min-height: 100svh; display: grid; place-items: center;
+    padding-block: calc(120px + env(safe-area-inset-top, 0px)) 140px;
+  }
+  .hero :global(.hero__watermark) {
+    position: absolute; z-index: -1; left: 50%; top: 50%;
+    width: min(140vw, 1240px); height: auto;
+    translate: -50% -50%;
+    color: var(--text); opacity: var(--opacity-watermark);
+    pointer-events: none;
+  }
+  .hero__video { position: absolute; inset: 0; z-index: -2; opacity: var(--opacity-hero-video); }
+  .hero__video :global(.media) { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; }
+
+  .hero__content { display: grid; gap: var(--space-7); justify-items: center; text-align: center; }
+  .hero__words {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--space-5);
+    font-family: var(--font-display); font-weight: 600; font-size: var(--fs-hero); line-height: 1; letter-spacing: -0.01em; text-transform: uppercase;
+  }
+  .hero__word { display: block; overflow: hidden; padding-bottom: .08em; }
+  .hero__word > span { display: block; }
+  .hero__dot { flex: 1; height: 1px; background: var(--line-strong); max-width: 22vw; }
+  .hero__h1 { max-width: 34ch; font-family: var(--font-body); font-weight: 400; font-size: var(--fs-lead); line-height: 1.6; color: var(--text); text-wrap: balance; }
+
+  .hero__scroll {
+    position: absolute; left: 50%; bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+    display: grid; justify-items: center; gap: var(--space-3); color: var(--muted); text-decoration: none;
+  }
+  .hero__scroll:hover { color: var(--text); }
+  .hero__mouse { width: 22px; height: 34px; border: 1.5px solid currentColor; border-radius: 12px; display: grid; justify-items: center; padding-top: 6px; }
+  .hero__mouse span { width: 2px; height: 6px; border-radius: 2px; background: currentColor; animation: mouse 1.8s var(--ease) infinite; }
+  @keyframes mouse { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(10px); opacity: 0; } 100% { transform: translateY(0); opacity: 0; } }
+
+  .hero__socials { position: absolute; right: max(var(--gutter), env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: grid; gap: var(--space-3); margin: 0; padding: 0; }
+  .hero__social { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); color: var(--text); transition: background-color .4s var(--ease), color .4s var(--ease), border-color .4s var(--ease); }
+  a.hero__social:hover { background: var(--text); border-color: var(--text); color: var(--bg); }
+  .hero__social.is-todo { border-style: dashed; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .hero__socials { display: none; }
+  }
+  @media (max-width: 640px) {
+    .hero__words { flex-direction: column; gap: var(--space-2); font-size: clamp(2.5rem, 13vw, 3.5rem); }
+    .hero__dot { display: none; }
+    .hero__content { gap: var(--space-6); }
+  }
+  @media (prefers-reduced-motion: reduce) { .hero__mouse span { animation: none; } }
+  :global(html.js:not(.reduced)) .hero__word > span { transform: translateY(105%); }
+  :global(html.js:not(.reduced)) .hero__h1, :global(html.js:not(.reduced)) .hero__scroll { opacity: 0; }
+</style>
+
+<script>
+  import { gsap, reduced } from '../scripts/motion';
+  if (!reduced) {
+    const tl = gsap.timeline({ delay: 0.15 });
+    tl.fromTo('.hero__word > span', { y: 0, yPercent: 105 }, { y: 0, yPercent: 0, duration: 1, stagger: 0.12 })
+      .fromTo('.hero__dot', { scaleX: 0 }, { scaleX: 1, duration: 0.9, stagger: 0.12 }, '<0.2')
+      .fromTo('.hero__h1', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8 }, '-=0.6')
+      .fromTo('.hero__scroll', { opacity: 0 }, { opacity: 1, duration: 0.8 }, '-=0.4')
+      .fromTo('.hero__watermark', { scale: 1.08, opacity: 0 }, { scale: 1, opacity: 0.06, duration: 1.6, ease: 'power2.out' }, 0);
+  }
+</script>

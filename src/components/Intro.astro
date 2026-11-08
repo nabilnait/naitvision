@@ -1,0 +1,19 @@
+---
+import SectionHead from './SectionHead.astro';
+import ReelCarousel from './ReelCarousel.astro';
+import { t, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const s = t(Astro.props.lang).intro;
+---
+<section class="section intro" id={s.id} aria-labelledby={`${s.id}-title`}>
+  <div class="container">
+    <SectionHead title={s.title} lead={s.lead} id={`${s.id}-title`} />
+    <div class="intro__reels" data-reveal>
+      <ReelCarousel reels={s.reels} lang={Astro.props.lang} />
+    </div>
+  </div>
+</section>
+<style>
+  .intro { padding-bottom: calc(var(--section-pad) * .7); }
+  .intro__reels { margin-top: var(--space-8); }
+</style>

@@ -1,0 +1,39 @@
+---
+/**
+ * A 9:16 or 16:9 frame. With `media` it renders a muted looping video with poster;
+ * without it, a grey placeholder panel with a label (never stock imagery).
+ * play: 'inview' plays while visible, 'hover' plays on hover (desktop) and in view on touch, 'manual' never autoplays.
+ */
+import { isTodo } from '../i18n';
+interface Props {
+  media?: string;
+  webm?: boolean;
+  alt: string;
+  slotLabel?: string;
+  wide?: boolean;
+  play?: 'inview' | 'hover' | 'manual';
+  class?: string;
+  eager?: boolean;
+}
+const { media, webm, alt, slotLabel, wide = false, play = 'inview', class: cls, eager = false } = Astro.props;
+const label = slotLabel ?? (wide ? 'Video 16:9' : 'Reel 9:16');
+---
+<div class:list={['media', wide && 'media--wide', cls]}>
+  {media ? (
+    <video
+      muted
+      loop
+      playsinline
+      preload={eager ? 'auto' : 'none'}
+      poster={`${media}.jpg`}
+      data-play={play}
+      aria-label={isTodo(alt) ? undefined : alt}
+      disablepictureinpicture
+    >
+      {webm && <source src={`${media}.webm`} type="video/webm" />}
+      <source src={`${media}.mp4`} type="video/mp4" />
+    </video>
+  ) : (
+    <span class="media__slot t-label" role="img" aria-label={label}>{label}</span>
+  )}
+</div>

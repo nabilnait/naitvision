@@ -1,0 +1,74 @@
+---
+import Mark from './Mark.astro';
+import Fill from './Fill.astro';
+import Icon from './Icon.astro';
+import { t, isTodo, isRealHref, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const c = t(Astro.props.lang);
+const b = c.business;
+const f = c.footer;
+const year = new Date().getFullYear();
+const socials = c.socials.filter((s) => isRealHref(s.href));
+---
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <a href="/" class="footer__logo" aria-label="Naitvision, naar home"><Mark class="footer__mark" /></a>
+        {socials.length > 0 && (
+          <div class="footer__socials">
+            {socials.map((s) => <a class="footer__social" href={s.href} target="_blank" rel="noopener" aria-label={s.name}><Icon name={s.icon} size={20} /></a>)}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h2 class="t-label muted footer__h">{f.contactTitle}</h2>
+        <ul role="list" class="footer__list">
+          <li>{isTodo(b.email) ? <Fill text={b.email} /> : <a href={`mailto:${b.email}`}>{b.email}</a>}</li>
+          <li>{isTodo(b.phone) ? <Fill text={b.phone} /> : <a href={`tel:${b.phone.replace(/\s/g, '')}`}>{b.phone}</a>}</li>
+          <li>{isTodo(b.whatsapp) ? <Fill text={b.whatsapp} /> : <a href={`https://wa.me/${b.whatsapp}`} target="_blank" rel="noopener">{f.whatsappLabel}</a>}</li>
+        </ul>
+      </div>
+
+      <div>
+        <h2 class="t-label muted footer__h">{f.regionTitle}</h2>
+        <p>{b.region}</p>
+      </div>
+
+      <div>
+        <h2 class="t-label muted footer__h">{f.legalTitle}</h2>
+        <ul role="list" class="footer__list"><li><a href={f.privacy.href}>{f.privacy.label}</a></li></ul>
+      </div>
+
+      <div>
+        <h2 class="t-label muted footer__h">{f.sitemapTitle}</h2>
+        <ul role="list" class="footer__list">{f.sitemap.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+      </div>
+    </div>
+
+    <div class="footer__legal">
+      <p>© {year} {b.name} · {f.vatLabel} <Fill text={b.vat} /> · <Fill text={b.address} /></p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { border-top: 1px solid var(--line); padding-top: var(--space-9); padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px)); font-size: var(--fs-small); }
+  .footer__grid { display: grid; grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr)); gap: var(--space-6); }
+  .footer__brand { display: grid; gap: var(--space-5); align-content: start; }
+  .footer__logo { color: var(--text); width: fit-content; }
+  .footer__logo :global(.footer__mark) { width: 72px; height: auto; }
+  .footer__socials { display: flex; gap: var(--space-3); }
+  .footer__social { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-strong); border-radius: var(--radius-pill); color: var(--text); transition: background-color .4s var(--ease), color .4s var(--ease); }
+  .footer__social:hover { background: var(--text); color: var(--bg); }
+  .footer__h { margin-bottom: var(--space-4); }
+  .footer__list { display: grid; gap: var(--space-2); margin: 0; padding: 0; }
+  .footer a { text-decoration: none; }
+  .footer__list a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .footer__legal { margin-top: var(--space-9); padding-top: var(--space-5); border-top: 1px solid var(--line); color: var(--muted); }
+  @media (max-width: 900px) {
+    .footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .footer__brand { grid-column: 1 / -1; }
+  }
+</style>

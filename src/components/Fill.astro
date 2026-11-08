@@ -1,0 +1,7 @@
+---
+/** Renders text; parts written as [INVULLEN: ...] get the dashed placeholder style. */
+interface Props { text: string }
+const { text } = Astro.props;
+const parts = text.split(/(\[INVULLEN[^\]]*\])/g).filter(Boolean);
+---
+{parts.map((p) => (p.startsWith('[INVULLEN') ? <mark class="todo">{p}</mark> : p))}

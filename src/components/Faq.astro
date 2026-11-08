@@ -1,0 +1,40 @@
+---
+import Lines from './Lines.astro';
+import Fill from './Fill.astro';
+import { t, type Lang } from '../i18n';
+interface Props { lang?: Lang }
+const s = t(Astro.props.lang).faq;
+---
+<section class="section faq" id={s.id} aria-labelledby={`${s.id}-title`}>
+  <div class="container faq__grid">
+    <Lines lines={s.title} id={`${s.id}-title`} />
+    <div class="faq__list" data-faq>
+      {s.items.map((it, i) => (
+        <details class="faq__item" open={i === 0} data-reveal>
+          <summary class="faq__q">{it.q}<span class="faq__icon" aria-hidden="true"></span></summary>
+          <div class="faq__a"><p class="muted"><Fill text={it.a} /></p></div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+<style>
+  .faq__grid { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: var(--space-8); align-items: start; }
+  .faq__list { border-top: 1px solid var(--line); }
+  .faq__item { border-bottom: 1px solid var(--line); }
+  .faq__q { display: flex; justify-content: space-between; align-items: center; gap: var(--space-5); padding-block: var(--space-5); cursor: pointer; list-style: none; font-weight: 500; font-size: clamp(1.25rem, 2vw, 1.75rem); line-height: 1.25; }
+  .faq__q::-webkit-details-marker { display: none; }
+  .faq__icon { position: relative; flex: none; width: 20px; height: 20px; transition: transform .5s var(--ease); }
+  .faq__icon::before, .faq__icon::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; margin-top: -.75px; background: currentColor; }
+  .faq__icon::after { transform: rotate(90deg); }
+  .faq__item[open] .faq__icon { transform: rotate(45deg); }
+  .faq__a { padding-bottom: var(--space-5); }
+  .faq__a p { max-width: var(--measure-body); }
+  @media (max-width: 860px) { .faq__grid { grid-template-columns: 1fr; gap: var(--space-6); } }
+</style>
+<script>
+  for (const list of document.querySelectorAll<HTMLElement>('[data-faq]')) {
+    const items = Array.from(list.querySelectorAll<HTMLDetailsElement>('details'));
+    items.forEach((d) => d.addEventListener('toggle', () => { if (d.open) items.forEach((o) => o !== d && (o.open = false)); }));
+  }
+</script>

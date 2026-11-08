@@ -1,0 +1,8 @@
+---
+/** A title split into masked lines for the line reveal. */
+interface Props { lines: string[]; as?: 'h1' | 'h2' | 'h3' | 'p'; class?: string; id?: string }
+const { lines, as: Tag = 'h2', class: cls = 't-section', id } = Astro.props;
+---
+<Tag class={cls} id={id} data-reveal="lines">
+  {lines.map((l) => <span class="line"><span>{l} </span></span>)}
+</Tag>
