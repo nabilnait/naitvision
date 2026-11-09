@@ -26,14 +26,23 @@ const socials = c.socials.filter((s) => showDetail(s.href));
   <Mark class="hero__watermark" />
 
   <div class="hero__content container">
-    <p class="hero__words" aria-hidden="true">
-      {h.words.map((w, i) => (
-        <>
-          {i > 0 && <span class="hero__dot" />}
-          <span class="hero__word"><span>{w}</span></span>
-        </>
-      ))}
-    </p>
+    {h.words.length === 3 ? (
+      /* three words: the middle one sits exactly in the centre, whatever the widths of the outer two */
+      <p class="hero__words hero__words--three" aria-hidden="true">
+        <span class="hero__side hero__side--left"><span class="hero__word"><span>{h.words[0]}</span></span><span class="hero__dot" /></span>
+        <span class="hero__word hero__word--mid"><span>{h.words[1]}</span></span>
+        <span class="hero__side hero__side--right"><span class="hero__dot" /><span class="hero__word"><span>{h.words[2]}</span></span></span>
+      </p>
+    ) : (
+      <p class="hero__words" aria-hidden="true">
+        {h.words.map((w, i) => (
+          <>
+            {i > 0 && <span class="hero__dot" />}
+            <span class="hero__word"><span>{w}</span></span>
+          </>
+        ))}
+      </p>
+    )}
     <h1 id="hero-title" class="hero__h1"><span class="sr-only">{h.words.join(', ')}. </span>{h.h1}</h1>
   </div>
 
@@ -79,7 +88,11 @@ const socials = c.socials.filter((s) => showDetail(s.href));
     width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--space-5);
     font-family: var(--font-display); font-weight: 600; font-size: var(--fs-hero); line-height: 1; letter-spacing: -0.01em; text-transform: uppercase;
   }
-  .hero__word { display: block; overflow: hidden; padding-bottom: .08em; }
+  .hero__words--three { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .hero__side { display: flex; align-items: center; gap: var(--space-5); min-width: 0; }
+  .hero__side--left .hero__dot { margin-right: 0; }
+  .hero__side .hero__dot { max-width: none; }
+  .hero__word { display: block; overflow: hidden; padding-bottom: .08em; flex: none; }
   .hero__word > span { display: block; }
   .hero__dot { flex: 1; height: 1px; background: var(--line-strong); max-width: 22vw; }
   .hero__h1 { max-width: 34ch; font-family: var(--font-body); font-weight: 400; font-size: var(--fs-lead); line-height: 1.6; color: var(--text); text-wrap: balance; }
@@ -104,6 +117,8 @@ const socials = c.socials.filter((s) => showDetail(s.href));
   }
   @media (max-width: 640px) {
     .hero__words { flex-direction: column; gap: var(--space-2); font-size: clamp(2.5rem, 13vw, 3.5rem); }
+    .hero__words--three { display: flex; }
+    .hero__side { display: contents; }
     .hero__dot { display: none; }
     .hero__content { gap: var(--space-6); }
   }
