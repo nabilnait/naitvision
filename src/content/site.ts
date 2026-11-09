@@ -91,7 +91,7 @@ const nl = {
       { media: '/media/reel-stadion', alt: '' },
       { media: '/media/reel-wellness', alt: '' },
     ] as Media[],
-    words: ['Content', 'Foto', 'Video'],
+    words: ['Foto', 'Video', 'Content'],
     h1: 'Short-form content en beeld voor lokale ondernemers in Limburg.',
     scroll: 'Scroll',
   },

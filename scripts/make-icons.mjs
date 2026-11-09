@@ -17,7 +17,7 @@ const og = `<html><head><style>${css}
 .sub{font:400 26px I;color:#8a8a85}</style></head><body><div class="wrap">
 <svg class="wm" viewBox="0 0 555 320">${mark}</svg>
 <div class="top"><svg viewBox="0 0 555 320">${mark}</svg>NAITVISION</div>
-<div><div class="words">CONTENT<i></i>FOTO<i></i>VIDEO</div><p class="sub">Short-form content en beeld voor lokale ondernemers in Limburg.</p></div>
+<div><div class="words">FOTO<i></i>VIDEO<i></i>CONTENT</div><p class="sub">Short-form content en beeld voor lokale ondernemers in Limburg.</p></div>
 </div></body></html>`;
 
 const icon = (size, pad) => `<html><head><style>html,body{margin:0;background:transparent}
