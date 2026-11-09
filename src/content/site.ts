@@ -182,11 +182,11 @@ const nl = {
     title: ['Vaak', 'gevraagd'],
     items: [
       { q: 'Wat kost het?', a: 'Elk pakket is op maat. Na het eerste gesprek krijg je een vaste prijs.' },
-      { q: 'Moet ik zelf iets voorbereiden?', a: '[INVULLEN]' },
-      { q: 'Hoe vaak komen jullie filmen?', a: 'Eén vaste shootdag per maand, bij jou ter plaatse. [INVULLEN: aanvullen indien nodig]' },
-      { q: 'Wie is eigenaar van de beelden?', a: '[INVULLEN]' },
-      { q: 'Werken jullie ook buiten Limburg?', a: '[INVULLEN]' },
-      { q: 'Kan ik ook één losse opdracht boeken?', a: '[INVULLEN]' },
+      { q: 'Moet ik zelf iets voorbereiden?', a: 'Weinig. Wat we filmen leggen we vooraf samen vast in het contentplan. Op de shootdag vragen we alleen dat je zaak er klaar voor is en dat wie in beeld komt even tijd heeft.' },
+      { q: 'Hoe vaak komen jullie filmen?', a: 'Eén vaste shootdag per maand, bij jou ter plaatse. We plannen die dag samen in, zodat hij past in jouw agenda.' },
+      { q: 'Wie is eigenaar van de beelden?', a: 'Je mag alle afgewerkte video\'s en foto\'s vrij gebruiken voor je eigen zaak: op je socials, je website en in advertenties. De afspraken daarover staan zwart op wit in je offerte.' },
+      { q: 'Werken jullie ook buiten Limburg?', a: 'Ja. We werken het vaakst in Limburg, maar filmden ook al in Antwerpen en in het buitenland. Verplaatsingen buiten Limburg bespreken we vooraf.' },
+      { q: 'Kan ik ook één losse opdracht boeken?', a: 'Ja. Maandelijkse content is onze kern, maar je kan ons ook voor één opdracht boeken: een fotoshoot, een aftermovie, een 360° tour of een livestream.' },
     ],
   },
 

@@ -22,7 +22,7 @@ Placeholders are visible in `npm run dev` (dashed outline). **Production builds 
 | Impact | Total views for clients (e.g. 120M+) | `impact.stats[0]` |
 | Impact | Number of projects | `impact.stats[1]` |
 | Impact | Three 16:9 videos or photos (row hidden in production until added) | `impact.media` |
-| FAQ | Answers: preparation, image ownership, outside Limburg, one-off jobs; check "how often" | `faq.items` |
+| FAQ | All six answers are filled in; check the wording of "Wie is eigenaar van de beelden?" against your offer terms | `faq.items` |
 
 ## /contact
 
