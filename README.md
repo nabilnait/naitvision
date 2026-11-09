@@ -122,9 +122,9 @@ curl -i -X POST https://naitvision.nabil-naits.workers.dev/api/contact -H 'conte
 
 Expected once configured: `400 {"ok":false,"error":"turnstile"}` (the route works and Turnstile is checked on the server). `500 config` means a value is missing. Then send the real form in the browser and check info@naitvision.be.
 
-### 6. Custom domain (later)
+### 6. Custom domain
 
-Worker → **Settings** → **Domains & Routes** → **Add** → **Custom domain** → `naitvision.be` (and `www`). Then update `SITE_URL`, add the domain to the Turnstile widget, and redeploy.
+naitvision.be's DNS is at GoDaddy, and Workers need it on Cloudflare. Full steps, including keeping the Titan e-mail records: [docs/DOMAIN.md](docs/DOMAIN.md).
 
 ### 7. Web Analytics (no cookies, no banner)
 
