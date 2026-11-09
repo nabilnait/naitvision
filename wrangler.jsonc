@@ -19,6 +19,12 @@
     // public Turnstile site key; the Worker fills it into /contact (the secret key is a wrangler secret)
     "TURNSTILE_SITE_KEY": "0x4AAAAAAF5NPZMXgzf3jK31"
   },
+  // Custom domains: listed here so every deploy keeps them (and their DNS records).
+  // www.naitvision.be is redirected to naitvision.be by a Redirect Rule in the Cloudflare dashboard.
+  "routes": [
+    { "pattern": "naitvision.be", "custom_domain": true },
+    { "pattern": "www.naitvision.be", "custom_domain": true }
+  ],
   // keep variables set in the dashboard when deploying
   "keep_vars": true,
   "observability": { "enabled": true }
