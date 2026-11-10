@@ -169,6 +169,12 @@ const nl = {
 
   /** Full-width photo between the services and the FAQ. Swap the file in src/assets/photos/. */
   photo: {
+    id: 'over-ons',
+    title: ['Gewend aan', 'grote podia.'],
+    text: [
+      'Sinds 2022 maken wij foto’s en video’s voor ondernemers in Limburg.',
+      'We staan ook langs het veld in de Pro League. Diezelfde blik en snelheid brengen we mee naar jouw zaak.',
+    ],
     alt: 'Fotograaf van Naitvision langs het veld onder de stadionlichten tijdens een Pro League-wedstrijd',
   },
 
