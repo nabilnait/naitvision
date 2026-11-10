@@ -42,7 +42,7 @@ Placeholders are visible in `npm run dev` (dashed outline). **Production builds 
 
 | What | Where |
 | --- | --- |
-| Team photo at least 1400 px wide (now 980 px; the build warns). Replace the file, same name. | `src/assets/team/broers.png` |
+| Optional: the full-width photo in a larger original (now 1179 px wide), for extra sharpness on big screens. Replace the file, same name. | `src/assets/photos/langs-het-veld.jpg` |
 | Logo: the site uses the NV mark and the about text says so ("een N en een V, voor Nait en Vision"). If you switch to the chess knight logo, update `src/components/Mark.astro`, `public/logo.svg`, rerun `node scripts/make-icons.mjs`, and change `about.text` in site.ts. | |
 | Hero option B uses three existing reels (barber, stadium, wellness); swap in others or a dedicated showreel | `hero.showreel` in site.ts |
 | Copy written by us that you should check: impact paragraph, process paragraph, services title and paragraph, "Vaak gevraagd", contact intro, privacy text | site.ts |

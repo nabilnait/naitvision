@@ -167,14 +167,9 @@ const nl = {
     ],
   },
 
-  about: {
-    id: 'over-ons',
-    title: ['Twee broers.', 'Één blik.'],
-    text: [
-      'Sinds 2022 maken wij foto’s en video’s voor ondernemers in Limburg.',
-      'Achter Naitvision staan twee broers die elk project van begin tot einde zelf opvolgen. Dat houdt de lijnen kort, de afspraken duidelijk en de kwaliteit constant.',
-    ],
-    photoAlt: 'De twee broers van Naitvision aan het werk, met een drone en een camera op gimbal',
+  /** Full-width photo between the services and the FAQ. Swap the file in src/assets/photos/. */
+  photo: {
+    alt: 'Fotograaf van Naitvision langs het veld onder de stadionlichten tijdens een Pro League-wedstrijd',
   },
 
   faq: {
